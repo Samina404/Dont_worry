@@ -1,5 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* ❌ remove @import "tailwindcss"; */
+
+/* Custom theme variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
