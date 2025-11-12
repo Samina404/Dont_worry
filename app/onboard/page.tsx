@@ -1,113 +1,99 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 
-export default function OnboardingPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+export default function OnboardPage() {
+  const [form, setForm] = useState({
+    music: "",
+    likes: "",
+    dislikes: "",
+    trustmost: "",
+    waterintake: "",
+    hobby: "",
+    sleephours: "",
+  });
 
-  // Form state
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [preferences, setPreferences] = useState("");
+  const [status, setStatus] = useState("");
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
-        router.push("/"); // not logged in → landing page
-        return;
-      }
+  const handleChange = (e: any) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-      setUser(data.user);
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setStatus("Saving...");
 
-      // Check if profile already exists
-      const { data: profileData, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.user.id)
-        .single();
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData?.user;
 
-      if (profileData) {
-        // If profile exists, redirect to home
-        router.push("/home");
-        return;
-      }
+console.log("User:", user);
 
-      setLoading(false);
-    };
-
-    fetchUser();
-  }, [router]);
-
-  const handleSubmit = async () => {
-    if (!name || !location) {
-      alert("Please fill in all required fields.");
+    if (!user) {
+      setStatus("User not logged in");
       return;
     }
 
-    try {
-      const updates = {
-        id: user.id,
-        full_name: name,
-        location: location,
-        preferences: preferences || null,
-        updated_at: new Date(),
-      };
+    const { error } = await supabase.from("user_onboarding").insert([
+      {
+        user_id: user.id,
+        ...form,
+      },
+    ]);
 
-      const { error } = await supabase.from("profiles").upsert(updates);
-      if (error) throw error;
+    if (error) {
+    console.error("Error saving data:", error.message, error.details);
 
-      router.push("/home"); // redirect to home after onboarding
-    } catch (err: any) {
-      alert(err.message);
+      setStatus("Error saving data.");
+    } else {
+      setStatus("✅ Data saved successfully!");
     }
   };
 
-  if (loading)
-    return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
-        Loading...
-      </div>
-    );
-
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
-      <h1 className="text-3xl font-bold mb-6">Complete Your Profile</h1>
+    <div className="min-h-screen bg-black text-white flex justify-center items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="w-[90%] max-w-md bg-gray-900 p-6 rounded-2xl shadow-lg"
+      >
+        <h1 className="text-2xl font-bold text-center mb-1">
+          Personal Information
+        </h1>
+        <p className="text-sm text-gray-400 text-center mb-4">
+          This information is for tracking your activity.
+        </p>
 
-      <div className="w-full max-w-md p-6 rounded-xl bg-gray-900 shadow-lg flex flex-col">
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-2 rounded mb-4 text-black"
-        />
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="w-full px-4 py-2 rounded mb-4 text-black"
-        />
-        <input
-          type="text"
-          placeholder="Preferences (optional)"
-          value={preferences}
-          onChange={(e) => setPreferences(e.target.value)}
-          className="w-full px-4 py-2 rounded mb-4 text-black"
-        />
+        {[
+          ["music", "What kind of Music do you like?"],
+          ["likes", "Name Some of Your Likes?"],
+          ["dislikes", "Your Dislikes? (feel free to write)"],
+          ["trustmost", "Who You Trust Most?"],
+          ["waterintake", "How many glasses of water do you drink per day?"],
+          ["hobby", "Music/Books/Movies?"],
+          ["sleephours", "How Many Hours You Sleep a Day?"],
+        ].map(([name, label]) => (
+          <div key={name} className="mb-4">
+            <label className="block mb-1 text-sm">{label}</label>
+            <input
+              name={name}
+              value={(form as any)[name]}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-800 text-white"
+            />
+          </div>
+        ))}
 
         <button
-          onClick={handleSubmit}
-          className="w-full bg-white text-black py-2 rounded font-semibold hover:bg-gray-200 transition"
+          type="submit"
+          className="w-full mt-2 py-2 rounded-full bg-red-600 hover:bg-red-700 transition"
         >
-          Save & Continue
+          Submit
         </button>
-      </div>
+
+        {status && (
+          <p className="text-center text-sm mt-3 text-gray-400">{status}</p>
+        )}
+      </form>
     </div>
   );
 }
