@@ -8,10 +8,6 @@ import animationData from "../public/animations/Girl yoga.json";
 import { supabase } from "../lib/supabaseClient";
 import Navbar from "./nav/page";
 
-// Colors
-const BACKGROUND_COLOR = "bg-[#1A1A2E]";
-const TEXT_COLOR = "text-white";
-
 export default function LandingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -32,68 +28,92 @@ export default function LandingPage() {
 
   if (loading)
     return (
-      <div className={`min-h-screen ${BACKGROUND_COLOR} flex items-center justify-center ${TEXT_COLOR} text-xl font-semibold`}>
+      <div className="min-h-screen bg-[#0B0C1A] flex items-center justify-center text-white text-xl font-semibold">
         Loading...
       </div>
     );
 
   return (
-    <div className={`min-h-screen ${BACKGROUND_COLOR} ${TEXT_COLOR} flex flex-col relative overflow-hidden`}>
+    <div className="relative min-h-screen bg-gradient-to-b from-[#0B0C1A] to-[#1B1E38] text-white overflow-hidden">
       {/* Navbar */}
       <Navbar isAuthenticated={!!user} onCtaClick={handleGetStarted} />
 
-      {/* Wave Background */}
-      <div className="absolute top-0 left-0 w-full h-1/2 overflow-hidden">
-        <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-          <path
-            fill="#0f0f1a"
-            d="M0,64L60,85.3C120,107,240,149,360,149.3C480,149,600,107,720,90.7C840,75,960,85,1080,101.3C1200,117,1320,139,1380,149.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"
-          ></path>
-        </svg>
-      </div>
+      {/* Floating background shapes */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.15 }}
+        transition={{ duration: 2 }}
+        className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-pink-600 rounded-full blur-[150px]"
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.15 }}
+        transition={{ duration: 2, delay: 0.5 }}
+        className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-blue-600 rounded-full blur-[150px]"
+      />
 
       {/* Hero Section */}
-      <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 px-8 lg:px-20 py-24 items-center gap-12 relative z-10">
-        
-        {/* Left Column: Text */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 items-center justify-center px-8 lg:px-24 py-32 gap-16">
+        {/* Left Text Section */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1 }}
-          className="flex flex-col space-y-6 max-w-lg"
+          className="space-y-6 max-w-lg"
         >
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight">
             Don’t Worry 
           </h1>
           <p className="text-gray-300 text-lg md:text-xl">
-            Track your mood, share your thoughts, and take care of your mind — one day at a time. This is your safe space to breathe and reflect.
+            Track your mood, share your thoughts, and take care of your mind —
+            one day at a time. This is your peaceful digital space to relax and
+            reflect.
           </p>
+
           <motion.button
             onClick={handleGetStarted}
-            whileHover={{ scale: 1.05 }}
-            className="px-10 py-4 text-lg rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold shadow-xl hover:from-orange-600 hover:to-pink-600 transition duration-300"
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 20px rgba(255, 182, 72, 0.6)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            className="mt-4 px-10 py-4 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 
+                       text-black font-semibold text-lg shadow-lg transition-all"
           >
             Enter Your Space
           </motion.button>
         </motion.div>
 
-        {/* Right Column: Animation */}
+        {/* Right Animation Section */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="flex items-center justify-center"
+          transition={{ duration: 1.2 }}
+          className="flex justify-center"
         >
-          <div className="w-full max-w-lg h-auto">
+          <div className="w-full max-w-md md:max-w-lg">
             <Lottie animationData={animationData} loop={true} />
           </div>
         </motion.div>
       </div>
 
+      {/* Curved Bottom Wave */}
+      <svg
+        className="absolute bottom-0 left-0 w-full"
+        viewBox="0 0 1440 320"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill="#0B0C1A"
+          fillOpacity="1"
+          d="M0,224L60,224C120,224,240,224,360,208C480,192,600,160,720,149.3C840,139,960,149,1080,170.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
+        ></path>
+      </svg>
+
       {/* Footer */}
-      <div className="bg-[#0F0F1A] py-6 text-center border-t border-gray-700 relative z-10">
+      <div className="relative z-10 bg-[#0B0C1A] py-6 text-center border-t border-gray-800">
         <p className="text-gray-500 text-sm md:text-base">
-          A mental wellness journal application. 🌿
+          A mental wellness journal — created with 💜 and calmness.
         </p>
       </div>
     </div>

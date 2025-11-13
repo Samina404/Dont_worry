@@ -1,7 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabaseClient";
+import { Home, Music, PlayCircle, Settings } from "lucide-react";
+import Image from "next/image";
 
 export default function HomePage() {
   const router = useRouter();
@@ -18,7 +21,6 @@ export default function HomePage() {
       }
       setUser(data.user);
 
-      // Fetch profile from Supabase
       const { data: profileData, error } = await supabase
         .from("profiles")
         .select("*")
@@ -39,7 +41,7 @@ export default function HomePage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/"); // redirect to landing page after logout
+    router.push("/");
   };
 
   if (loading)
@@ -49,28 +51,55 @@ export default function HomePage() {
       </div>
     );
 
-  if (!user)
-    return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
-        Not logged in. Redirecting...
-      </div>
-    );
-
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
-      <h1 className="text-3xl font-bold mb-4">
-        Hello, {profile?.full_name || user.email} 👋
-      </h1>
-      <p className="text-gray-400 mb-6">
-        Welcome back! {profile?.preferences ? `Your preferences: ${profile.preferences}` : ""}
-      </p>
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      {/* Top Navigation Bar */}
+      <header className="w-full flex justify-between items-center px-5 py-4 bg-black border-b border-gray-800">
+        <h1 className="text-2xl font-bold text-white">Don’t Worry</h1>
 
-      <button
-        onClick={handleLogout}
-        className="bg-red-600 px-6 py-2 rounded hover:bg-red-700 transition"
-      >
-        Logout
-      </button>
+        <nav className="flex gap-5 text-gray-400">
+          <Home className="hover:text-white cursor-pointer" size={22} />
+          <Music className="hover:text-white cursor-pointer" size={22} />
+          <PlayCircle className="hover:text-white cursor-pointer" size={22} />
+          <Settings className="hover:text-white cursor-pointer" size={22} />
+        </nav>
+
+        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-600 cursor-pointer">
+          <Image
+            src={profile?.avatar_url || "/default-avatar.png"}
+            alt="Profile"
+            width={36}
+            height={36}
+            className="object-cover"
+          />
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col justify-center items-center text-center p-6">
+        <h2 className="text-2xl font-semibold mb-3">
+          Hello, {profile?.full_name || user?.email} 👋
+        </h2>
+        <p className="text-gray-400 mb-6 max-w-md">
+          Welcome back! {profile?.preferences
+            ? `Your preferences: ${profile.preferences}`
+            : "Let's make today great!"}
+        </p>
+
+        <button
+          onClick={() => router.push("/moodcheckin")}
+          className="bg-red-600 px-6 py-2 rounded-full hover:bg-red-700 transition"
+        >
+          Go to Mood Check-In
+        </button>
+
+        <button
+          onClick={handleLogout}
+          className="mt-4 text-gray-400 hover:text-red-500 text-sm"
+        >
+          Logout
+        </button>
+      </main>
     </div>
   );
 }

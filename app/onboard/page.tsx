@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function OnboardPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     music: "",
     likes: "",
@@ -16,37 +18,41 @@ export default function OnboardPage() {
 
   const [status, setStatus] = useState("");
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("Saving...");
 
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-
-console.log("User:", user);
-
-    if (!user) {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
       setStatus("User not logged in");
       return;
     }
 
+    const { user } = userData;
+
     const { error } = await supabase.from("user_onboarding").insert([
       {
         user_id: user.id,
-        ...form,
+        music: form.music,
+        likes: form.likes,
+        dislikes: form.dislikes,
+        trustmost: form.trustmost,
+        waterintake: form.waterintake,
+        hobby: form.hobby,
+        sleephours: form.sleephours,
       },
     ]);
 
     if (error) {
-    console.error("Error saving data:", error.message, error.details);
-
-      setStatus("Error saving data.");
+      console.error("Error saving data:", error);
+      setStatus("Error saving data");
     } else {
-      setStatus("✅ Data saved successfully!");
+      setStatus("Saved successfully!");
+      router.push("/moodcheckin"); // redirect to mood check-in page
     }
   };
 
@@ -76,9 +82,11 @@ console.log("User:", user);
             <label className="block mb-1 text-sm">{label}</label>
             <input
               name={name}
-              value={(form as any)[name]}
+              value={form[name as keyof typeof form]}
               onChange={handleChange}
               className="w-full p-2 rounded bg-gray-800 text-white"
+              placeholder={label}
+              required
             />
           </div>
         ))}
