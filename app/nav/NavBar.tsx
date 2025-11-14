@@ -3,13 +3,13 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-export default function NavPage() {
-  const router = useRouter();
-  const isAuthenticated = false;
+interface NavProps {
+  isAuthenticated: boolean;
+  onCtaClick: () => void;
+}
 
-  const handleCtaClick = () => {
-    router.push("/signup");
-  };
+export default function NavPage({ isAuthenticated, onCtaClick }: NavProps) {
+  const router = useRouter();
 
   return (
     <motion.nav
@@ -48,7 +48,7 @@ export default function NavPage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleCtaClick}
+                onClick={onCtaClick}
                 className="px-5 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 
                            text-black font-semibold text-sm shadow-md hover:shadow-lg transition-all"
               >

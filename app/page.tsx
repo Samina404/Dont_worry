@@ -6,7 +6,7 @@ import Lottie from "lottie-react";
 import { useRouter } from "next/navigation";
 import animationData from "../public/animations/Girl yoga.json";
 import { supabase } from "../lib/supabaseClient";
-import Navbar from "./nav/page";
+import Navbar from "./nav/NavBar";
 
 export default function LandingPage() {
   const router = useRouter();
