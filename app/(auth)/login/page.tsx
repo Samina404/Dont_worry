@@ -17,12 +17,36 @@ export default function LoginPage() {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
-      router.push("/home");
+
+      const user = data.user;
+      if (!user) throw new Error("User not found");
+
+      // Check if mood already submitted today
+      const { data: moods } = await supabase
+        .from("user_moods")
+        .select("created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const lastMoodDate = moods?.[0]?.created_at
+        ? new Date(moods[0].created_at)
+        : null;
+
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== todayStr) {
+        // Redirect to mood check-in page
+        router.push("/mood-check-in");
+      } else {
+        // Already submitted today, go to home
+        router.push("/home");
+      }
     } catch (err: any) {
       alert(err.message);
     } finally {

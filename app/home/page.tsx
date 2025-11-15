@@ -66,11 +66,10 @@ export default function HomePage() {
 
         <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-600 cursor-pointer">
           <Image
-            src={profile?.avatar_url || "/default-avatar.png"}
+            src="/OIP.webp"
             alt="Profile"
             width={36}
-            height={36}
-            className="object-cover"
+            height={36}   className="w-full h-full object-cover" 
           />
         </div>
       </header>

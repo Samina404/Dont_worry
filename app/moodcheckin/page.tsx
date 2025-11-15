@@ -11,6 +11,7 @@ export default function MoodCheckInPage() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showMoodCheck, setShowMoodCheck] = useState(false);
 
   const moods = [
     { emoji: "😄", label: "Happy" },
@@ -20,13 +21,78 @@ export default function MoodCheckInPage() {
     { emoji: "😡", label: "Angry" },
   ];
 
+  // Fetch user and check if mood check is needed
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+    const checkMoodToday = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const currentUser = userData.user;
+      setUser(currentUser);
+
+      if (!currentUser) return;
+
+      // Get last mood entry
+      const { data: moodsData } = await supabase
+        .from("user_moods")
+        .select("created_at")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const lastMoodDate = moodsData?.[0]?.created_at
+        ? new Date(moodsData[0].created_at)
+        : null;
+
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== todayStr) {
+        // Show mood check-in
+        setShowMoodCheck(true);
+      } else {
+        // Already submitted today, redirect to home
+        router.push("/home");
+      }
     };
-    fetchUser();
-  }, []);
+
+    checkMoodToday();
+  }, [router]);
+
+  // Auto-save default mood if user doesn't interact
+  useEffect(() => {
+    if (!user || !showMoodCheck) return;
+
+    const autoSaveMood = async () => {
+      const { data: moodsData } = await supabase
+        .from("user_moods")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const lastMoodDate = moodsData?.[0]?.created_at
+        ? new Date(moodsData[0].created_at)
+        : null;
+
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== todayStr) {
+        await supabase.from("user_moods").insert([
+          {
+            user_id: user.id,
+            mood: "Neutral",
+            note: "Auto-saved",
+          },
+        ]);
+        router.push("/home");
+      }
+    };
+
+    // Auto-save after 30 seconds if user doesn't submit
+    const timer = setTimeout(() => {
+      autoSaveMood();
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, [user, showMoodCheck, router]);
 
   const handleSubmit = async () => {
     if (!selectedMood) {
@@ -48,12 +114,12 @@ export default function MoodCheckInPage() {
 
     if (error) {
       console.error("Error saving mood:", error);
-      
     } else {
-     
       router.push("/home");
     }
   };
+
+  if (!showMoodCheck) return null; // Don't show anything until check is done
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
@@ -69,21 +135,23 @@ export default function MoodCheckInPage() {
         How are you feeling today? Choose the emoji that best describes your mood and leave an optional note.
       </p>
 
-      <div className="flex space-x-4 mb-6">
+      <div className="flex space-x-6 mb-6">
         {moods.map((m) => (
-          <motion.button
-            key={m.label}
-            onClick={() => setSelectedMood(m.label)}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-            className={`text-4xl p-3 rounded-full border-2 transition ${
-              selectedMood === m.label
-                ? "border-pink-500 bg-pink-500/20"
-                : "border-gray-700 hover:border-pink-400"
-            }`}
-          >
-            {m.emoji}
-          </motion.button>
+          <div key={m.label} className="flex flex-col items-center">
+            <motion.button
+              onClick={() => setSelectedMood(m.label)}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              className={`text-4xl p-3 rounded-full border-2 transition ${
+                selectedMood === m.label
+                  ? "border-pink-500 bg-pink-500/20"
+                  : "border-gray-700 hover:border-pink-400"
+              }`}
+            >
+              {m.emoji}
+            </motion.button>
+            <p className="text-sm text-gray-300 mt-2">{m.label}</p>
+          </div>
         ))}
       </div>
 
