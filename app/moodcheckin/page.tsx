@@ -21,7 +21,9 @@ export default function MoodCheckInPage() {
     { emoji: "😡", label: "Angry" },
   ];
 
-  // Fetch user and check if mood check is needed
+  // -----------------------------------------------------------
+  // 1️⃣ Check if today's mood is already submitted
+  // -----------------------------------------------------------
   useEffect(() => {
     const checkMoodToday = async () => {
       const { data: userData } = await supabase.auth.getUser();
@@ -30,7 +32,6 @@ export default function MoodCheckInPage() {
 
       if (!currentUser) return;
 
-      // Get last mood entry
       const { data: moodsData } = await supabase
         .from("user_moods")
         .select("created_at")
@@ -42,21 +43,21 @@ export default function MoodCheckInPage() {
         ? new Date(moodsData[0].created_at)
         : null;
 
-      const todayStr = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString().split("T")[0];
 
-      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== todayStr) {
-        // Show mood check-in
-        setShowMoodCheck(true);
+      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== today) {
+        setShowMoodCheck(true); // show mood check-in
       } else {
-        // Already submitted today, redirect to home
-        router.push("/home");
+        router.push("/home"); // already logged mood → go home
       }
     };
 
     checkMoodToday();
   }, [router]);
 
-  // Auto-save default mood if user doesn't interact
+  // -----------------------------------------------------------
+  // 2️⃣ Auto-save Neutral mood if user does nothing
+  // -----------------------------------------------------------
   useEffect(() => {
     if (!user || !showMoodCheck) return;
 
@@ -72,9 +73,10 @@ export default function MoodCheckInPage() {
         ? new Date(moodsData[0].created_at)
         : null;
 
-      const todayStr = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString().split("T")[0];
 
-      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== todayStr) {
+      // only auto-save if NO mood today
+      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== today) {
         await supabase.from("user_moods").insert([
           {
             user_id: user.id,
@@ -86,14 +88,13 @@ export default function MoodCheckInPage() {
       }
     };
 
-    // Auto-save after 30 seconds if user doesn't submit
-    const timer = setTimeout(() => {
-      autoSaveMood();
-    }, 30000);
-
+    const timer = setTimeout(() => autoSaveMood(), 30000);
     return () => clearTimeout(timer);
   }, [user, showMoodCheck, router]);
 
+  // -----------------------------------------------------------
+  // 3️⃣ Manual Submit (merged logic)
+  // -----------------------------------------------------------
   const handleSubmit = async () => {
     if (!selectedMood) {
       alert("Please select a mood!");
@@ -102,24 +103,17 @@ export default function MoodCheckInPage() {
 
     setLoading(true);
 
-    const { error } = await supabase.from("user_moods").insert([
-      {
-        user_id: user?.id,
-        mood: selectedMood,
-        note,
-      },
-    ]);
+    await supabase.from("user_moods").insert({
+      user_id: user?.id,
+      mood: selectedMood,
+      note,
+    });
 
     setLoading(false);
-
-    if (error) {
-      console.error("Error saving mood:", error);
-    } else {
-      router.push("/home");
-    }
+    router.push("/home");
   };
 
-  if (!showMoodCheck) return null; // Don't show anything until check is done
+  if (!showMoodCheck) return null; // don't show UI until ready
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
@@ -128,7 +122,7 @@ export default function MoodCheckInPage() {
         animate={{ opacity: 1, y: 0 }}
         className="text-3xl font-bold mb-6"
       >
-        Daily Mood Check-In 
+        Daily Mood Check-In
       </motion.h1>
 
       <p className="text-gray-400 mb-8 text-center max-w-md">
