@@ -24,23 +24,21 @@ export default function HomePage() {
     const fetchUserAndProfile = async () => {
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
-        router.push("/"); 
+        router.push("/");
         return;
       }
 
       setUser(data.user);
 
-      const { data: profileData, error } = await supabase
+      const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", data.user.id)
         .single();
 
-      if (!error) {
-        setProfile(profileData);
-      }
+      if (profileData) setProfile(profileData);
 
-      // mood check
+      // Mood check
       const { data: moodData } = await supabase
         .from("user_moods")
         .select("created_at")
@@ -72,18 +70,21 @@ export default function HomePage() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
+      <div className="min-h-screen bg-[#3b234a] text-white flex justify-center items-center">
         Loading...
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Top Navigation Bar */}
-      <header className="w-full flex justify-between items-center px-5 py-4 bg-black border-b border-gray-800">
-        <h1 className="text-2xl font-bold text-white">Don’t Worry</h1>
+    <div className="min-h-screen bg-[#3b234a] text-white flex flex-col">
+      
+      {/* Navigation Bar */}
+      <header className="w-full flex justify-between items-center px-8 py-5 bg-[#3b234a]/70 backdrop-blur-md border-b border-purple-900/40">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-400 to-yellow-400 bg-clip-text text-transparent">
+          Don’t Worry
+        </h1>
 
-        <nav className="flex gap-6 text-gray-400">
+        <nav className="flex gap-8 text-gray-300">
 
           <div
             className="flex flex-col items-center cursor-pointer hover:text-white"
@@ -123,50 +124,49 @@ export default function HomePage() {
           </div>
         </nav>
 
-        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-600 cursor-pointer">
+        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-400 cursor-pointer">
           <Image
             src="/OIP.webp"
             alt="Profile"
-            width={36}
-            height={36}
+            width={40}
+            height={40}
             className="w-full h-full object-cover"
           />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-center items-center text-center p-6">
-        <h2 className="text-2xl font-semibold mb-3">
-          Hello, {profile?.full_name || user?.email} 👋
-        </h2>
+      <main className="flex-1 flex flex-col justify-center items-center p-6">
 
-        <p className="text-gray-400 mb-6 max-w-md">
-          Welcome back!{" "}
-          {profile?.preferences
-            ? `Your preferences: ${profile.preferences}`
-            : "Let's make today great!"}
-        </p>
+        {/* Card */}
+        <div className="max-w-xl w-full bg-gradient-to-br from-black via-[#1a0f1f] to-pink-700 p-8 rounded-3xl shadow-2xl border border-pink-400/20">
 
-        <button
-          onClick={() => router.push("/moodcheckin")}
-          className="bg-red-600 px-6 py-2 rounded-full hover:bg-red-700 transition"
-        >
-          Go to Mood Check-In
-        </button>
+          <h2 className="text-3xl font-bold mb-4">
+            Hello, {profile?.full_name || user?.email} 👋
+          </h2>
 
-        <button
-          onClick={() => router.push("/moodhistory")}
-          className="mt-4 bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700 transition"
-        >
-          View Mood History
-        </button>
+          <p className="text-gray-300 mb-6 leading-relaxed">
+            Welcome back!{" "}
+            {profile?.preferences
+              ? `Your preferences: ${profile.preferences}`
+              : "Let’s make today amazing!"}
+          </p>
 
-        <button
-          onClick={handleLogout}
-          className="mt-4 text-gray-400 hover:text-red-500 text-sm"
-        >
-          Logout
-        </button>
+          <button
+            onClick={() => router.push("/moodhistory")}
+            className="w-full mt-2 bg-gradient-to-r from-pink-400 to-yellow-400 text-black font-semibold px-6 py-3 rounded-full shadow-lg hover:opacity-90 transition"
+          >
+            View Mood History
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="w-full mt-4 text-gray-300 hover:text-red-400 text-sm"
+          >
+            Logout
+          </button>
+
+        </div>
       </main>
     </div>
   );
