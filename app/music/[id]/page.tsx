@@ -1,32 +1,82 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 
-export default function MusicPlayerPage() {
+const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+
+export default function MovieDetail() {
+  const router = useRouter();
   const params = useParams() as any;
   const id = params?.id;
-  const router = useRouter();
 
-  const seed: any = {
-    lofi: {
-      title: "Lo-fi Beats",
-      image: "/music/lofi.jpg",
-      src: "/music-samples/lofi.mp3",
-      description: "A mellow lo-fi playlist to help you focus and relax.",
-    },
-    meditation: {
-      title: "Meditation Music",
-      image: "/music/meditation.jpg",
-      src: "/music-samples/meditation.mp3",
-      description: "Soft ambient music to guide breathing.",
-    },
-  };
+  const [movie, setMovie] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    let mounted = true;
 
-  const cur = seed[id] || seed.lofi;
+    if (!id) {
+      console.error("❌ Missing movie ID from URL");
+      setLoading(false);
+      return;
+    }
+
+    async function fetchMovie() {
+      try {
+        const res = await fetch(`/api/tmdb/movie/${id}`);
+        const data = await res.json();
+
+        if (data?.error) {
+          console.error("Movie API error:", data.error);
+          if (mounted) setMovie(null);
+          return;
+        }
+
+        if (!data || !data.id) {
+          console.error("❌ Movie not found or invalid data");
+          if (mounted) setMovie(null);
+          return;
+        }
+
+        if (!mounted) return;
+
+        setMovie({
+          title: data.title ?? "Untitled",
+          poster: data.poster_path ? `${IMAGE_BASE}${data.poster_path}` : "/placeholder.png",
+          description: data.overview ?? "No description available.",
+          themes: (data.genres || []).map((g: any) => g.name),
+          why: `Rating: ${data.vote_average ?? "N/A"} — ${data.tagline || "No tagline"}`,
+        });
+      } catch (err) {
+        console.error("Failed to load movie:", err);
+        if (mounted) setMovie(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchMovie();
+
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  if (loading)
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        Loading...
+      </div>
+    );
+
+  if (!movie)
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        Movie not found
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
@@ -36,21 +86,43 @@ export default function MusicPlayerPage() {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
+          <div className="md:col-span-1">
             <div className="rounded-lg overflow-hidden border border-gray-800">
-              <Image src={cur.image} alt={cur.title} width={600} height={600} className="w-full h-auto object-cover" />
+              <Image
+                src={movie.poster}
+                alt={movie.title}
+                width={600}
+                height={900}
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
 
           <div className="md:col-span-2">
-            <h1 className="text-3xl font-bold mb-2">{cur.title}</h1>
-            <p className="text-gray-300 mb-4">{cur.description}</p>
+            <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
 
-            <audio src={cur.src} controls className="w-full bg-gray-900 rounded" />
+            <div className="flex gap-2 mb-4 flex-wrap">
+              {movie.themes.map((t: string) => (
+                <span key={t} className="text-xs bg-gray-800 px-2 py-1 rounded">
+                  {t}
+                </span>
+              ))}
+            </div>
 
-            <div className="mt-4 flex gap-3">
-              <button className="bg-blue-600 px-4 py-2 rounded">Add to playlist</button>
-              <button className="bg-gray-800 px-4 py-2 rounded border border-gray-700">Share</button>
+            <p className="text-gray-300 mb-4">{movie.description}</p>
+
+            <div className="mb-4">
+              <h3 className="font-semibold">Why we recommend it</h3>
+              <p className="text-gray-300">{movie.why}</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button className="bg-red-600 px-4 py-2 rounded hover:bg-red-700">
+                Watch Trailer
+              </button>
+              <button className="bg-gray-800 px-4 py-2 rounded border border-gray-700">
+                Add to favorites
+              </button>
             </div>
           </div>
         </div>
@@ -58,4 +130,3 @@ export default function MusicPlayerPage() {
     </div>
   );
 }
-

@@ -1,23 +1,26 @@
-"use server";
+// app/api/tmdb/search/route.ts
 import { NextResponse } from "next/server";
-import { fetchFromTMDB } from "../../../../lib/tmdb";
+import { fetchFromTMDB } from "../_lib";
 
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const q = url.searchParams.get("q") || "mental health";
+    const query = url.searchParams.get("q") || "";
     const page = url.searchParams.get("page") || "1";
 
-    const data = await fetchFromTMDB("search/movie", { query: q, page });
+    if (!query) {
+      return NextResponse.json({ error: "Missing q parameter" }, { status: 400 });
+    }
 
-    // 🚀 Filter out movies without posters
-    data.results = (data.results || []).filter((m: any) => m.poster_path);
+    const data = await fetchFromTMDB("search/movie", {
+      query,
+      page,
+      include_adult: false,
+    });
 
     return NextResponse.json(data);
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || String(err) },
-      { status: 500 }
-    );
+    console.error("Search route error:", err.message ?? err);
+    return NextResponse.json({ error: err.message ?? "Unknown error" }, { status: 500 });
   }
 }

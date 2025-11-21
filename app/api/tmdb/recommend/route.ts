@@ -1,62 +1,52 @@
 "use server";
+
 import { NextResponse } from "next/server";
-import { fetchFromTMDB } from "../../../../lib/tmdb";
-import { moodMap } from "../../../components/MoodGenreMap";
 
-export async function GET(req: Request) {
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+
+// TMDB API helper
+async function tmdb(endpoint: string) {
+  const url = `https://api.themoviedb.org/3/${endpoint}${
+    endpoint.includes("?") ? "&" : "?"
+  }api_key=${TMDB_API_KEY}&language=en-US`;
+
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const text = await res.text(); // TMDB might return HTML if broken
+    console.error("TMDB Error Response:", text);
+    throw new Error(`TMDB error: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function GET() {
   try {
-    const url = new URL(req.url);
+    const keywordQuery =
+      "mental health, mental, mindfulness, relax, calm, peace, stress relief";
 
-    const movieId = url.searchParams.get("id");
-    const mood = url.searchParams.get("mood") || "";
+    // FIXED: must use ?query= not &query=
+    const keywordResults = await tmdb(
+      `search/movie?query=${encodeURIComponent(keywordQuery)}`
+    );
 
-    if (!movieId) {
-      return NextResponse.json({ error: "Missing movie id" }, { status: 400 });
-    }
+    // Comedy = genre 35
+    const comedyResults = await tmdb("discover/movie?with_genres=35");
 
-    // Similar
-    const similar = await fetchFromTMDB(`movie/${movieId}/similar`);
-    // Detail (for genres)
-    const detail = await fetchFromTMDB(`movie/${movieId}`);
-    const genreId = detail.genres?.[0]?.id;
+    // Merge + dedupe
+    const combined = [
+      ...keywordResults.results,
+      ...comedyResults.results,
+    ];
 
-    // Genre Movies
-    let genreMovies = [];
-    if (genreId) {
-      genreMovies = await fetchFromTMDB("discover/movie", {
-        with_genres: genreId,
-        sort_by: "popularity.desc",
-        page: 1,
-      });
-    }
+    const unique = combined.filter(
+      (v, i, arr) => arr.findIndex((t) => t.id === v.id) === i
+    );
 
-    // Mood Movies
-    let moodMovies = [];
-    const keywords = moodMap[mood] || [];
-
-    if (keywords.length > 0) {
-      moodMovies = await fetchFromTMDB("discover/movie", {
-        sort_by: "popularity.desc",
-        with_keywords: keywords.join(","),
-        include_adult: false,
-        page: 1,
-      });
-    }
-
-    // Merge + remove posterless + no duplicates
-    const all = [
-      ...(similar?.results || []),
-      ...(genreMovies?.results || []),
-      ...(moodMovies?.results || []),
-    ]
-      .filter(m => m.poster_path)
-      .reduce((acc: any[], m: any) => {
-        if (!acc.some(x => x.id === m.id)) acc.push(m);
-        return acc;
-      }, []);
-
-    return NextResponse.json(all);
+    return NextResponse.json(unique);
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    const msg = e instanceof Error ? e.message : "Unknown server error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

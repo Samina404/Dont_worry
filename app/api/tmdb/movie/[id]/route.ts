@@ -1,54 +1,49 @@
-"use server";
-
 import { NextResponse } from "next/server";
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const API_KEY = process.env.TMDB_API_KEY;
 
-if (!TMDB_API_KEY) {
-  throw new Error("TMDB_API_KEY is not set in environment variables!");
-}
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  console.log("🔥 API ROUTE HIT: /api/tmdb/movie/[id]");
 
-// Utility function to fetch from TMDB
-async function fetchFromTMDB<T>(endpoint: string): Promise<T> {
-  const separator = endpoint.includes("?") ? "&" : "?";
-  const url = `https://api.themoviedb.org/3/${endpoint}${separator}api_key=${TMDB_API_KEY}`;
-
-  const res = await fetch(url);
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`TMDB API error ${res.status}: ${text}`);
-  }
-  return res.json();
-}
-
-// TypeScript interface for basic TMDB movie data (optional)
-interface TMDBMovie {
-  id: number;
-  title: string;
-  overview: string;
-  poster_path?: string | null;
-  release_date?: string;
-  genres?: { id: number; name: string }[];
-  [key: string]: any;
-}
-
-// GET handler
-export async function GET(_: Request, { params }: any) {
   try {
-    const id = params.id;
+    const resolvedParams = await context.params;
+
+    console.log("📌 Raw params =", resolvedParams);
+
+    const id = resolvedParams.id;
+
+    console.log("🎯 Extracted id =", id);
+
     if (!id) {
-      return NextResponse.json({ error: "Missing movie ID" }, { status: 400 });
+      console.error("❌ ERROR: params.id is missing!");
+      return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
-    const data: TMDBMovie = await fetchFromTMDB(`movie/${id}?language=en-US`);
+    const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&append_to_response=videos,credits`;
 
-    // Return data exactly as received from TMDB
+    console.log("🌐 TMDB Request URL =", url);
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    console.log("📥 TMDB response status =", res.status);
+    console.log("📦 TMDB data =", data);
+
+    if (!res.ok) {
+      console.error("❌ TMDB Error:", data);
+      return NextResponse.json(
+        { error: data.status_message || "TMDB request failed" },
+        { status: 500 }
+      );
+    }
+
+    console.log("✅ SUCCESS: Returning movie detail");
     return NextResponse.json(data);
   } catch (err: any) {
-    console.error("TMDB API route error:", err.message);
-    return NextResponse.json(
-      { error: err.message || "Unknown error fetching movie" },
-      { status: 400 }
-    );
+    console.error("💥 SERVER CRASHED:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
