@@ -208,7 +208,7 @@ export default function MoviesPage() {
                 <h2 className="text-2xl font-semibold">{movies[0].title}</h2>
                 <p className="text-gray-300 mt-2 line-clamp-3">{movies[0].overview}</p>
                 <div className="mt-3 flex gap-3">
-                  <button className="px-4 py-2 bg-[#c084fc] rounded text-black" onClick={(e) => { e.stopPropagation(); openTrailer(movies[0].id); }}>
+                  <button className="px-4 py-2 bg-[#c084fc] rounded text-black" onClick={(e) => { e.stopPropagation(); openTrailer(movies[0].title, movies[0].release_date); }}>
                     ▶ Watch Trailer
                   </button>
                   <button className="px-4 py-2 border border-[#45336a] rounded text-gray-200" onClick={(e) => { e.stopPropagation(); openDetails(movies[0].id); }}>
@@ -232,7 +232,7 @@ export default function MoviesPage() {
                       <h4 className="font-semibold">{m.title}</h4>
                       <p className="text-xs text-gray-300 mt-1">{m.release_date}</p>
                       <div className="mt-2 flex gap-2">
-                        <button className="px-2 py-1 bg-[#6d28d9] rounded text-xs" onClick={(e) => { e.stopPropagation(); openTrailer(m.id); }}>Trailer</button>
+                        <button className="px-2 py-1 bg-[#6d28d9] rounded text-xs" onClick={(e) => { e.stopPropagation(); openTrailer(movies[0].title, movies[0].release_date); }}>Trailer</button>
                         <button className="px-2 py-1 border border-[#45336a] rounded text-xs" onClick={(e) => { e.stopPropagation(); openDetails(m.id); }}>Details</button>
                       </div>
                     </div>
@@ -261,7 +261,7 @@ export default function MoviesPage() {
                   <h3 className="font-semibold text-lg mb-1">{m.title}</h3>
                   <p className="text-sm text-gray-300 line-clamp-3">{m.overview}</p>
                   <div className="mt-3 flex gap-2">
-                    <button onClick={() => openTrailer(m.id)} className="px-3 py-1 bg-[#c084fc] rounded text-black">▶ Trailer</button>
+                    <button onClick={(e) => { e.stopPropagation(); openTrailer(movies[0].title, movies[0].release_date); }} className="px-3 py-1 bg-[#c084fc] rounded text-black">▶ Trailer</button>
                     <button onClick={() => openDetails(m.id)} className="px-3 py-1 border border-[#45336a] rounded text-gray-200">Details</button>
                   </div>
                 </div>
