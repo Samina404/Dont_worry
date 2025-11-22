@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
 type Movie = {
@@ -14,6 +14,16 @@ type Movie = {
   vote_average?: number;
 };
 
+// Mood → TMDB Genres
+const MOOD_GENRES: Record<string, number[]> = {
+  happy: [35, 10751, 10749],
+  calm: [16, 10751, 18],
+  stressed: [35, 12],
+  motivated: [18, 12],
+  sad: [18, 10749],
+  comedy: [35],
+};
+
 const MOODS = [
   { key: "happy", label: "😄 Happy" },
   { key: "calm", label: "🧘 Calm" },
@@ -23,280 +33,179 @@ const MOODS = [
   { key: "comedy", label: "😂 Comedy" },
 ];
 
-export default function MoviesPage() {
-  const [mood, setMood] = useState<string>("happy");
+export default function MoodMoviesPage() {
+  const [mood, setMood] = useState("happy");
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [perPage] = useState<number>(18);
-  const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  // trailer modal
-  const [trailerKey, setTrailerKey] = useState<string | null>(null);
-  const [trailerOpen, setTrailerOpen] = useState(false);
-
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const [shuffleMode, setShuffleMode] = useState(false);
 
-  async function loadMovies(opts: { reset?: boolean; mood?: string; q?: string; p?: number } = {}) {
-    const m = opts.mood ?? mood;
-    const q = opts.q ?? "";
-    const p = opts.p ?? (opts.reset ? 1 : page);
-
+  // Fetch by mood
+  async function fetchMovies(selected: string) {
     setLoading(true);
     try {
-      const url = new URL("/api/tmdb/movies", window.location.origin);
-      url.searchParams.set("mood", m);
-      if (q) url.searchParams.set("q", q);
-      url.searchParams.set("page", String(p));
-      url.searchParams.set("perPage", String(perPage));
-
-      const res = await fetch(url.toString());
+      const genres = MOOD_GENRES[selected].join(",");
+      const res = await fetch(`/api/tmdb/movies/byGenre?genres=${genres}`);
       const data = await res.json();
-
-      if (data.error) {
-        console.error("Movies API error:", data.error);
-        setLoading(false);
-        return;
-      }
-
-      if (opts.reset) {
-        setMovies(data.movies || []);
-      } else {
-        setMovies((prev) => [...prev, ...(data.movies || [])]);
-      }
-      setTotal(data.total ?? 0);
-      setPage(p);
-    } catch (err) {
-      console.error("Failed to fetch movies", err);
+      if (!data.error) setMovies(data.movies);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    // initial load
-    loadMovies({ reset: true, mood, p: 1 });
-  }, []); // eslint-disable-line
-
-  // when mood changed
-  useEffect(() => {
-    setMovies([]);
-    setPage(1);
-    loadMovies({ reset: true, mood, p: 1 });
+    fetchMovies(mood);
   }, [mood]);
 
-  const loadMore = () => {
-    if (loading) return;
-    if (movies.length >= total) return;
-    loadMovies({ reset: false, p: page + 1 });
-  };
-
-  // open trailer
-  const openTrailer = async (movieTitle: string, releaseDate?: string) => {
-    try {
-      // include release year if available
-      const year = releaseDate ? ` ${releaseDate.slice(0, 4)}` : "";
-      const res = await fetch("/api/youtube/trailer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ movieName: movieTitle + year }),
-      });
-
-      const data = await res.json();
-      if (data.key) {
-        setTrailerKey(data.key);
-        setTrailerOpen(true);
-      } else {
-        alert("Trailer not available");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to load trailer");
-    }
-  };
-
-  const openDetails = (id: number) => {
-    // navigate to detail route
-    window.location.href = `/movies/${id}`;
-  };
-
-  const doSearch = (e?: React.FormEvent) => {
+  const doSearch = async (e?: any) => {
     e?.preventDefault();
-    setMovies([]);
-    setPage(1);
-    loadMovies({ reset: true, mood, q: search, p: 1 });
+    if (!search.trim()) return fetchMovies(mood);
+
+    const res = await fetch(`/api/tmdb/movies/search?q=${search}`);
+    const data = await res.json();
+
+    if (!data.error) setMovies(data.movies);
   };
 
   const doShuffle = () => {
-    setShuffleMode((s) => !s);
+    setShuffleMode((x) => !x);
     if (!shuffleMode) {
-      // shuffle current list
       setMovies((prev) => {
-        const arr = [...prev];
+        let arr = [...prev];
         for (let i = arr.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [arr[i], arr[j]] = [arr[j], arr[i]];
         }
         return arr;
       });
-    } else {
-      // reload to original order (reset)
-      setMovies([]);
-      setPage(1);
-      loadMovies({ reset: true, mood, q: search, p: 1 });
-    }
+    } else fetchMovies(mood);
   };
 
-  // UI classes
-  const bg = "bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-[#e6e6ff]";
-  const neon = "text-[#c084fc]";
-  const cardBg = "bg-[#151225] border border-[#2b1e4a]";
+  const openDetails = (id: number) => {
+    window.location.href = `/movies/${id}`;
+  };
+
+  // THEME
+  const bg = "bg-[#3b234a] text-white";
+  const neonText =
+    "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400";
+  const cardBg =
+    "bg-[#1a0f1f] border border-purple-700/30 rounded-2xl shadow-xl shadow-purple-900/20 hover:shadow-purple-500/30 transition";
 
   return (
-    <div className={`${bg} min-h-screen p-6`}>
+    <div className={`${bg} min-h-screen p-4`}>
       <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className={`text-4xl font-bold ${neon}`}>Mood Movies</h1>
-            <p className="text-gray-300 mt-1">Movies chosen to lift mood, calm the mind or make you laugh.</p>
-          </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <form onSubmit={doSearch} className="flex gap-2 w-full md:w-auto">
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search (movie title or keyword)..."
-                className="px-3 py-2 rounded-md bg-[#1b1330] border border-[#35214f] placeholder-gray-400"
-              />
-              <button className="px-4 py-2 rounded-md bg-[#c084fc] text-white">Search</button>
-            </form>
+        {/* HEADER */}
+        <header className="flex items-center justify-between mb-2 backdrop-blur-md bg-[#3b234a]/70 border-b border-purple-900/40 p-4 rounded-xl">
+          <h1 className={`text-3xl font-semibold ${neonText}`}>
+            Mood Movies
+          </h1>
 
-            <button
-              onClick={doShuffle}
-              className={`px-3 py-2 rounded-md ${shuffleMode ? "bg-[#7c3aed] text-white" : "bg-[#2a234e] text-white"}`}
-            >
-              {shuffleMode ? "Unshuffle" : "Shuffle"}
-            </button>
-          </div>
+          <button
+            onClick={doShuffle}
+            className="px-4 py-2 font-semibold rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 text-black shadow-lg hover:scale-105 transition"
+          >
+            {shuffleMode ? "Unshuffle" : "Shuffle"}
+          </button>
         </header>
 
-        {/* Mood tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        {/* SEARCH BAR (unchanged but themed) */}
+        <form onSubmit={doSearch}>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search movies..."
+            className="w-full p-3 my-4 rounded-xl bg-[#1a0f1f] border border-purple-700/40 text-white placeholder-gray-300 focus:ring-2 focus:ring-pink-400/40 outline-none transition"
+          />
+        </form>
+
+        {/* Mood Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar">
           {MOODS.map((m) => (
             <button
               key={m.key}
               onClick={() => setMood(m.key)}
-              className={`px-3 py-2 rounded-md ${m.key === mood ? "bg-[#7c3aed] text-white" : "bg-[#201533] text-gray-200"}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                mood === m.key
+                  ? "bg-gradient-to-r from-pink-400 to-yellow-400 text-black shadow-lg"
+                  : "bg-[#1a0f1f] border border-purple-700 text-gray-300 hover:bg-purple-700/50"
+              }`}
             >
               {m.label}
             </button>
           ))}
         </div>
 
-        {/* Featured movie (hero) */}
-        {!loading && movies[0] && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className={`lg:col-span-2 rounded-xl overflow-hidden ${cardBg} cursor-pointer`} onClick={() => openDetails(movies[0].id)}>
-              {movies[0].backdrop_path ? (
-                <img src={`https://image.tmdb.org/t/p/original${movies[0].backdrop_path}`} className="w-full h-80 object-cover" />
-              ) : (
-                <div className="w-full h-80 bg-[#201533] flex items-center justify-center">No image</div>
-              )}
-              <div className="p-6">
-                <h2 className="text-2xl font-semibold">{movies[0].title}</h2>
-                <p className="text-gray-300 mt-2 line-clamp-3">{movies[0].overview}</p>
-                <div className="mt-3 flex gap-3">
-                  <button className="px-4 py-2 bg-[#c084fc] rounded text-black" onClick={(e) => { e.stopPropagation(); openTrailer(movies[0].title, movies[0].release_date); }}>
-                    ▶ Watch Trailer
-                  </button>
-                  <button className="px-4 py-2 border border-[#45336a] rounded text-gray-200" onClick={(e) => { e.stopPropagation(); openDetails(movies[0].id); }}>
-                    Details
-                  </button>
-                </div>
+        {/* FEATURED MOVIE */}
+        {movies[0] && (
+          <div
+            className={`${cardBg} overflow-hidden mb-10 cursor-pointer`}
+            onClick={() => openDetails(movies[0].id)}
+          >
+            {movies[0].backdrop_path ? (
+              <img
+                src={`https://image.tmdb.org/t/p/original${movies[0].backdrop_path}`}
+                className="w-full h-72 object-cover"
+              />
+            ) : (
+              <div className="w-full h-72 bg-[#1a0f1f]" />
+            )}
+
+            <div className="p-5">
+              <h2 className="text-xl font-semibold">{movies[0].title}</h2>
+              <p className="text-gray-300 mt-2 line-clamp-3">
+                {movies[0].overview}
+              </p>
+
+              <div className="mt-3 flex gap-3 items-center">
+                <span className="px-4 py-2 bg-gradient-to-r from-pink-400 to-yellow-400 rounded-full text-black font-semibold">
+                  ⭐ {Math.round((movies[0].vote_average || 0) * 10)}%
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openDetails(movies[0].id);
+                  }}
+                  className="px-4 py-2 rounded-full border border-purple-700 text-white hover:bg-purple-600/30"
+                >
+                  Details
+                </button>
               </div>
             </div>
-
-            {/* Right small column (next 4 unique movies) */}
-            <aside className="space-y-4">
-              {movies.slice(1, 5).map((m) => (
-                <div key={m.id} className={`${cardBg} rounded-lg p-3 cursor-pointer`} onClick={() => openDetails(m.id)}>
-                  <div className="flex gap-3">
-                    {m.poster_path ? (
-                      <img src={`https://image.tmdb.org/t/p/w200${m.poster_path}`} className="w-24 h-32 object-cover rounded" />
-                    ) : (
-                      <div className="w-24 h-32 bg-[#201533] rounded" />
-                    )}
-                    <div>
-                      <h4 className="font-semibold">{m.title}</h4>
-                      <p className="text-xs text-gray-300 mt-1">{m.release_date}</p>
-                      <div className="mt-2 flex gap-2">
-                        <button className="px-2 py-1 bg-[#6d28d9] rounded text-xs" onClick={(e) => { e.stopPropagation(); openTrailer(movies[0].title, movies[0].release_date); }}>Trailer</button>
-                        <button className="px-2 py-1 border border-[#45336a] rounded text-xs" onClick={(e) => { e.stopPropagation(); openDetails(m.id); }}>Details</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </aside>
-          </motion.div>
+          </div>
         )}
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {loading && movies.length === 0 ? (
-            Array.from({ length: perPage }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-lg h-72 bg-[#201533]" />
-            ))
-          ) : (
-            movies.slice(5).map((m) => (
-              <motion.div whileHover={{ scale: 1.02 }} key={m.id} className={`${cardBg} rounded-lg overflow-hidden`}>
-                {m.poster_path ? (
-                  <img src={`https://image.tmdb.org/t/p/w300${m.poster_path}`} alt={m.title} className="w-full h-64 object-cover" />
-                ) : (
-                  <div className="w-full h-64 bg-[#201533] flex items-center justify-center">No image</div>
-                )}
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-1">{m.title}</h3>
-                  <p className="text-sm text-gray-300 line-clamp-3">{m.overview}</p>
-                  <div className="mt-3 flex gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); openTrailer(movies[0].title, movies[0].release_date); }} className="px-3 py-1 bg-[#c084fc] rounded text-black">▶ Trailer</button>
-                    <button onClick={() => openDetails(m.id)} className="px-3 py-1 border border-[#45336a] rounded text-gray-200">Details</button>
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          )}
-        </div>
+        {/* MOVIE GRID */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-20">
+          {loading
+            ? [...Array(10)].map((_, i) => (
+                <div
+                  key={i}
+                  className="animate-pulse h-64 bg-[#1a0f1f] rounded-xl"
+                />
+              ))
+            : movies.map((m) => (
+                <motion.div
+                  key={m.id}
+                  whileHover={{ scale: 1.04 }}
+                  className={`${cardBg} p-2 cursor-pointer`}
+                  onClick={() => openDetails(m.id)}
+                >
+                  {m.poster_path ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w300${m.poster_path}`}
+                      className="w-full h-56 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-56 bg-[#1a0f1f]" />
+                  )}
 
-        {/* Load more */}
-        <div className="flex justify-center mt-8">
-          {movies.length < total ? (
-            <button onClick={loadMore} className="px-6 py-3 bg-[#c084fc] hover:bg-[#a05ee0] rounded-md">
-              {loading ? "Loading..." : "Load more"}
-            </button>
-          ) : (
-            <div className="text-gray-400">No more movies</div>
-          )}
+                  <p className="text-sm mt-2">{m.title}</p>
+                </motion.div>
+              ))}
         </div>
       </div>
-
-      {/* Trailer modal */}
-      {trailerOpen && trailerKey && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center" onClick={() => setTrailerOpen(false)}>
-          <div className="bg-black rounded-lg overflow-hidden w-[90%] max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <div className="relative pb-[56.25%]">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
-                className="absolute inset-0 w-full h-full"
-                allow="autoplay; encrypted-media; picture-in-picture"
-              />
-            </div>
-            <button className="w-full py-3 bg-[#c084fc] text-black font-semibold" onClick={() => setTrailerOpen(false)}>Close Trailer</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

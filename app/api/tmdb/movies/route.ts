@@ -11,59 +11,58 @@ export async function GET() {
     );
   }
 
-  const queries = [
-    "mental health",
-    "stress relief",
-    "feel good",
-    "comedy",
-    "funny movies",
-    "uplifting",
-    "positive mood",
-    "wholesome"
+  // 🎯 Genres for mental health + feel-good movies
+  const GENRES = [
+    35,  // Comedy
+    18,  // Drama (light / emotional)
+    10751, // Family
+    16,  // Animation
+    10749, // Romance
+    12, // Adventure
   ];
 
-  async function fetchMovies(q: string) {
+  async function fetchGenre(genreId: number) {
     try {
-      const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
-        q
-      )}&include_adult=false&language=en-US&api_key=${API_KEY}`;
+      const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&include_adult=false&language=en-US&sort_by=popularity.desc`;
 
       const res = await fetch(url);
-      if (!res.ok) return null;
+      if (!res.ok) return [];
       const data = await res.json();
-      console.log("📥 Raw TMDB response for", q, data);
       return data?.results || [];
     } catch {
       return [];
     }
   }
 
-  // fetch all at once
-  const results = await Promise.all(queries.map(fetchMovies));
+  // ⏳ Fetch from all genres at same time
+  const results = await Promise.all(GENRES.map(fetchGenre));
 
-  // merge all results
+  // 🔄 Merge all
   let all = results.flat();
 
-  // ❌ Remove duplicates
+  // 🧹 Remove duplicates
   const map = new Map();
   all.forEach((m) => {
     if (!map.has(m.id)) map.set(m.id, m);
   });
   all = [...map.values()];
 
-  // ❌ Remove 18+ movies SAFELY
+  // 🧹 Remove movies without posters
+  all = all.filter((m) => m.poster_path);
+
+  // 🚫 Remove 18+ movies + banned keywords
   const bannedWords = ["adult", "erotic", "porn", "xxx", "sex", "nsfw"];
   all = all.filter((m) => {
-    if (m.adult === true) return false; // TMDB flag
+    if (m.adult === true) return false;
     const t = (m.title || "").toLowerCase();
     const o = (m.overview || "").toLowerCase();
     return !bannedWords.some((w) => t.includes(w) || o.includes(w));
   });
 
-  // sort by popularity
+  // ⭐ Sort by popularity
   all.sort((a, b) => b.popularity - a.popularity);
 
-  console.log("✅ Final movie count:", all.length);
+  console.log("🎉 Final movie count:", all.length);
 
   if (!all.length) {
     return NextResponse.json(
