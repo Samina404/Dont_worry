@@ -152,7 +152,7 @@ export default function MoodMoviesPage() {
               <div className="w-full h-72 bg-[#1a0f1f]" />
             )}
 
-            <div className="p-5">
+            <div className="p-3">
               <h2 className="text-xl font-semibold">{movies[0].title}</h2>
               <p className="text-gray-300 mt-2 line-clamp-3">
                 {movies[0].overview}
