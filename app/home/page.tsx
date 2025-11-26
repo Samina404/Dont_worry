@@ -145,7 +145,7 @@ const [showMore, setShowMore] = useState(false);
         className="px-3 py-2 text-sm hover:bg-purple-900 rounded-lg cursor-pointer"
         onClick={() => {
           setShowMore(false);
-          router.push("/more/quotes");
+          router.push("/more/quote");
         }}
       >
         Quotes

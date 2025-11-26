@@ -1,25 +1,45 @@
+// app/api/weather/route.ts
 import { NextResponse } from "next/server";
 
-const API_KEY = process.env.OPEN_WEATHER_KEY;
-
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const city = searchParams.get("city") || "Chattogram";
+    const body = await req.json();
+    let lat: number | undefined = body.lat;
+    let lon: number | undefined = body.lon;
 
-    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    console.log("WEATHER API RESPONSE:", data); // 🔥 See real error
-
-    if (data.cod !== "200") {
-      return NextResponse.json({ error: data.message }, { status: 400 });
+    // if city provided -> geocode
+    if (!lat || !lon) {
+      if (!body.city) return NextResponse.json({ error: "missing lat/lon or city" }, { status: 400 });
+      const g = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(body.city)}&count=1&language=en`
+      ).then((r) => r.json());
+      const hit = g?.results?.[0];
+      if (!hit) return NextResponse.json({ error: "city not found" }, { status: 404 });
+      lat = hit.latitude;
+      lon = hit.longitude;
     }
 
-    return NextResponse.json({ data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // build forecast URL
+    const forecastUrl = [
+      "https://api.open-meteo.com/v1/forecast?",
+      `latitude=${lat}&longitude=${lon}`,
+      "&current_weather=true",
+      "&hourly=temperature_2m,apparent_temperature,relativehumidity_2m,precipitation_probability,weathercode,windspeed_10m,winddirection_10m,visibility",
+      "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max",
+      "&timezone=auto",
+    ].join("");
+
+    const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5&timezone=auto`;
+
+    const [fRes, aqRes] = await Promise.all([
+      fetch(forecastUrl).then((r) => r.json()),
+      fetch(aqUrl).then((r) => r.json()),
+    ]);
+
+    // attach coordinates
+    const out = { forecast: fRes, air: aqRes, lat, lon };
+    return NextResponse.json(out);
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "unknown" }, { status: 500 });
   }
 }
