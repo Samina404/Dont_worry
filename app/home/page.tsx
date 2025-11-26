@@ -19,6 +19,8 @@ export default function HomePage() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+const [showMore, setShowMore] = useState(false);
+
 
   useEffect(() => {
     const fetchUserAndProfile = async () => {
@@ -118,10 +120,40 @@ export default function HomePage() {
             <span className="text-xs mt-1">Articles</span>
           </div>
 
-          <div className="flex flex-col items-center cursor-pointer hover:text-white">
-            <MoreHorizontal size={22} />
-            <span className="text-xs mt-1">More</span>
-          </div>
+          <div className="relative">
+  <div
+    className="flex flex-col items-center cursor-pointer hover:text-white"
+    onClick={() => setShowMore(!showMore)}
+  >
+    <MoreHorizontal size={22} />
+    <span className="text-xs mt-1">More</span>
+  </div>
+
+  {showMore && (
+    <div className="absolute right-0 mt-2 w-32 bg-[#2a1535] border border-purple-800 rounded-xl shadow-lg p-2">
+      <p
+        className="px-3 py-2 text-sm hover:bg-purple-900 rounded-lg cursor-pointer"
+        onClick={() => {
+          setShowMore(false);
+          router.push("/more/weather");
+        }}
+      >
+        Weather
+      </p>
+
+      <p
+        className="px-3 py-2 text-sm hover:bg-purple-900 rounded-lg cursor-pointer"
+        onClick={() => {
+          setShowMore(false);
+          router.push("/more/quotes");
+        }}
+      >
+        Quotes
+      </p>
+    </div>
+  )}
+</div>
+
         </nav>
 
         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-400 cursor-pointer">
