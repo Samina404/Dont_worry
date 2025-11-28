@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Quote, CloudSun, MapPin, ArrowRight, Sparkles } from "lucide-react";
+import { Quote, CloudSun, MapPin, ArrowRight, Sparkles, MessageCircleHeart } from "lucide-react";
 import { motion } from "framer-motion";
 
 const MENU_ITEMS = [
@@ -28,6 +28,14 @@ const MENU_ITEMS = [
     href: "/more/explore",
     color: "from-purple-500 to-violet-500",
     delay: 0.3,
+  },
+  {
+    title: "Social Space",
+    description: "Connect, share, and see what others are up to.",
+    icon: MessageCircleHeart,
+    href: "/more/social",
+    color: "from-green-500 to-emerald-500",
+    delay: 0.4,
   },
 ];
 
