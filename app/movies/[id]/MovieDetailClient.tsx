@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import BackButton from "@/components/BackButton";
 
 export default function MovieDetailClient({ movieId }: { movieId: string }) {
   const [trailerUrl, setTrailerUrl] = useState("");
   const [movie, setMovie] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showTrailer, setShowTrailer] = useState(false);
+  const [recommendedMovies, setRecommendedMovies] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadMovie() {
@@ -21,6 +23,18 @@ export default function MovieDetailClient({ movieId }: { movieId: string }) {
           return;
         }
         setMovie(data);
+        
+        // Fetch recommended movies based on genres
+        if (data.genres && data.genres.length > 0) {
+          const genreIds = data.genres.map((g: any) => g.id).slice(0, 2).join(",");
+          const recRes = await fetch(`/api/tmdb/movies/byGenre?genres=${genreIds}`);
+          const recData = await recRes.json();
+          if (!recData.error) {
+            // Filter out the current movie and limit to 6 recommendations
+            const filtered = recData.movies.filter((m: any) => m.id !== parseInt(movieId)).slice(0, 6);
+            setRecommendedMovies(filtered);
+          }
+        }
       } catch (e) {
         console.error(e);
       } finally {
@@ -69,6 +83,11 @@ export default function MovieDetailClient({ movieId }: { movieId: string }) {
 
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+
+      {/* Back Button - Floating */}
+      <div className="absolute top-6 left-6 z-20">
+        <BackButton variant="light" />
+      </div>
 
       {/* Main Content */}
       <div className="relative z-10 p-8 md:p-16 flex flex-col md:flex-row gap-10 items-start">
@@ -146,6 +165,38 @@ export default function MovieDetailClient({ movieId }: { movieId: string }) {
 
         </div>
       </div>
+
+      {/* Recommended Movies Section */}
+      {recommendedMovies.length > 0 && (
+        <div className="relative z-10 px-8 md:px-16 pb-16">
+          <h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400">
+            You Might Also Like
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {recommendedMovies.map((m) => (
+              <motion.div
+                key={m.id}
+                whileHover={{ scale: 1.05 }}
+                className="cursor-pointer bg-[#1a0f1f] rounded-xl p-2 border border-purple-700/30 hover:border-purple-500/50 transition"
+                onClick={() => window.location.href = `/movies/${m.id}`}
+              >
+                {m.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w300${m.poster_path}`}
+                    className="w-full h-40 object-cover rounded-lg"
+                    alt={m.title}
+                  />
+                ) : (
+                  <div className="w-full h-40 bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl opacity-30">🎬</span>
+                  </div>
+                )}
+                <p className="text-sm mt-2 line-clamp-2">{m.title}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Trailer Modal */}
       {showTrailer && (

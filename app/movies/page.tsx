@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
+import BackButton from "@/components/BackButton";
 
 type Movie = {
   id: number;
@@ -98,16 +99,21 @@ export default function MoodMoviesPage() {
 
         {/* HEADER */}
         <header className="flex items-center justify-between mb-2 backdrop-blur-md bg-[#3b234a]/70 border-b border-purple-900/40 p-4 rounded-xl">
-          <h1 className={`text-3xl font-semibold ${neonText}`}>
-            Mood Movies
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className={`text-3xl font-semibold ${neonText}`}>
+              Mood Movies
+            </h1>
+          </div>
 
-          <button
-            onClick={doShuffle}
-            className="px-4 py-2 font-semibold rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 text-black shadow-lg hover:scale-105 transition"
-          >
-            {shuffleMode ? "Unshuffle" : "Shuffle"}
-          </button>
+          <div className="flex items-center gap-3">
+            <BackButton variant="themed" />
+            <button
+              onClick={doShuffle}
+              className="px-4 py-2 font-semibold rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 text-black shadow-lg hover:scale-105 transition"
+            >
+              {shuffleMode ? "Unshuffle" : "Shuffle"}
+            </button>
+          </div>
         </header>
 
         {/* SEARCH BAR (unchanged but themed) */}
@@ -140,37 +146,75 @@ export default function MoodMoviesPage() {
         {/* FEATURED MOVIE */}
         {movies[0] && (
           <div
-            className={`${cardBg} overflow-hidden mb-10 cursor-pointer`}
+            className="relative overflow-hidden mb-10 cursor-pointer rounded-2xl shadow-2xl shadow-purple-900/20 group"
             onClick={() => openDetails(movies[0].id)}
           >
-            {movies[0].backdrop_path ? (
-              <img
-                src={`https://image.tmdb.org/t/p/original${movies[0].backdrop_path}`}
-                className="w-full h-72 object-cover"
-              />
-            ) : (
-              <div className="w-full h-72 bg-[#1a0f1f]" />
-            )}
+            {/* Background Cover */}
+            <div className="absolute inset-0">
+              {movies[0].backdrop_path ? (
+                <img
+                  src={`https://image.tmdb.org/t/p/original${movies[0].backdrop_path}`}
+                  className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700"
+                  alt="Background"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-900 to-black" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0f0518] via-[#0f0518]/80 to-transparent" />
+            </div>
 
-            <div className="p-3">
-              <h2 className="text-xl font-semibold">{movies[0].title}</h2>
-              <p className="text-gray-300 mt-2 line-clamp-3">
-                {movies[0].overview}
-              </p>
+            {/* Content */}
+            <div className="relative z-10 p-6 md:p-10 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start">
+              {/* Small Poster */}
+              <div className="flex-shrink-0">
+                {movies[0].poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w300${movies[0].poster_path}`}
+                    className="w-32 md:w-48 rounded-xl shadow-lg border border-white/10 group-hover:scale-105 transition-transform duration-300"
+                    alt={movies[0].title}
+                  />
+                ) : (
+                  <div className="w-32 md:w-48 h-48 md:h-72 bg-gray-800 rounded-xl flex items-center justify-center">
+                    <span className="text-4xl">🎬</span>
+                  </div>
+                )}
+              </div>
 
-              <div className="mt-3 flex gap-3 items-center">
-                <span className="px-4 py-2 bg-gradient-to-r from-pink-400 to-yellow-400 rounded-full text-black font-semibold">
-                  ⭐ {Math.round((movies[0].vote_average || 0) * 10)}%
-                </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openDetails(movies[0].id);
-                  }}
-                  className="px-4 py-2 rounded-full border border-purple-700 text-white hover:bg-purple-600/30"
-                >
-                  Details
-                </button>
+              {/* Details */}
+              <div className="flex-1 text-center md:text-left">
+                <div className="mb-2">
+                  <span className="px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-xs font-bold uppercase tracking-wider border border-pink-500/20">
+                    Featured Movie
+                  </span>
+                </div>
+                
+                <h2 className="text-2xl md:text-4xl font-bold mb-3 text-white leading-tight">
+                  {movies[0].title}
+                </h2>
+                
+                <p className="text-gray-300 mb-6 line-clamp-3 leading-relaxed max-w-2xl">
+                  {movies[0].overview}
+                </p>
+
+                <div className="flex flex-wrap gap-3 items-center justify-center md:justify-start">
+                  <span className="flex items-center gap-1 px-3 py-1.5 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm font-semibold border border-yellow-500/20">
+                    ⭐ {Math.round((movies[0].vote_average || 0) * 10)}%
+                  </span>
+                  {movies[0].release_date && (
+                    <span className="px-3 py-1.5 bg-white/10 text-gray-300 rounded-lg text-sm border border-white/10">
+                      📅 {movies[0].release_date.slice(0, 4)}
+                    </span>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openDetails(movies[0].id);
+                    }}
+                    className="px-6 py-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold shadow-lg hover:shadow-pink-500/25 hover:scale-105 transition-all"
+                  >
+                    View Details
+                  </button>
+                </div>
               </div>
             </div>
           </div>

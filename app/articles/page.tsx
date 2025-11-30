@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import BackButton from "@/components/BackButton";
 
 type Article = {
   id: string;
@@ -117,11 +118,14 @@ export default function ArticlesPage() {
     <div className={`${bg} min-h-screen p-6`}>
       <div className="max-w-6xl mx-auto">
         {/* HEADER */}
-        <header className="mb-8">
-          <h1 className={`text-4xl font-bold ${neon}`}>Wellness & Mindfulness</h1>
-          <p className="mt-1 text-gray-300">
-            Latest articles, guides and expert tips for calm, focus and mental peace.
-          </p>
+        <header className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className={`text-4xl font-bold ${neon}`}>Wellness & Mindfulness</h1>
+            <p className="mt-1 text-gray-300">
+              Latest articles, guides and expert tips for calm, focus and mental peace.
+            </p>
+          </div>
+          <BackButton variant="themed" />
         </header>
 
         {/* Search & categories */}

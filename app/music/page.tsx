@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import BackButton from "@/components/BackButton";
 
 interface Video {
   id: string;
@@ -15,9 +16,6 @@ export default function MusicPage() {
   const [currentCategory, setCurrentCategory] = useState("Calm");
   const [pageToken, setPageToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const [playlists, setPlaylists] = useState<Record<string, Video[]>>({});
-  const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
 
   const categories = {
     Calm: "calm relaxing meditation zen",
@@ -76,30 +74,6 @@ export default function MusicPage() {
     setSelectedVideo(videos[idx].id);
   };
 
-  const createPlaylist = () => {
-    const name = prompt("Playlist name?");
-    if (!name) return;
-    if (playlists[name]) return alert("Already exists");
-    setPlaylists((prev) => ({ ...prev, [name]: [] }));
-    setSelectedPlaylist(name);
-  };
-
-  const addToPlaylist = (video: Video) => {
-    if (!selectedPlaylist) return alert("Select a playlist first!");
-    setPlaylists((prev) => {
-      const items = prev[selectedPlaylist] || [];
-      if (items.find((v) => v.id === video.id)) return prev;
-      return { ...prev, [selectedPlaylist]: [...items, video] };
-    });
-  };
-
-  const removeFromPlaylist = (list: string, id: string) => {
-    setPlaylists((prev) => ({
-      ...prev,
-      [list]: prev[list].filter((v) => v.id !== id),
-    }));
-  };
-
   const dailyRecommended = useCallback(() => {
     if (!videos.length) return [];
     const day = new Date().toISOString().slice(0, 10);
@@ -123,12 +97,15 @@ export default function MusicPage() {
           <h1 className={`text-3xl font-semibold ${neonText}`}>
             Music Therapy
           </h1>
-          <button
-            onClick={shuffle}
-            className="px-4 py-2 font-semibold rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 text-black hover:opacity-90 transition"
-          >
-            Shuffle
-          </button>
+          <div className="flex items-center gap-3">
+            <BackButton />
+            <button
+              onClick={shuffle}
+              className="px-4 py-2 font-semibold rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 text-black hover:opacity-90 transition"
+            >
+              Shuffle
+            </button>
+          </div>
         </header>
 
         {/* SEARCH */}
@@ -170,13 +147,16 @@ export default function MusicPage() {
             />
           </div>
         )}
-
+        
         {/* DAILY RECOMMENDED */}
-        <h2 className={`text-xl mb-3 font-semibold ${neonText}`}>Today's Recommendations</h2>
+        <h2 className={`text-xl mb-3 font-semibold ${neonText}`}>
+          Today's Recommendations
+        </h2>
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
-          {dailyRecommended().map((v) => (
+          {dailyRecommended().map((v, index) => (
             <div
-              key={v.id}
+              key={`${v.id}-${index}`}
               onClick={() => setSelectedVideo(v.id)}
               className="cursor-pointer bg-[#1a0f1f] rounded-2xl p-2 hover:scale-105 transition shadow-md border border-purple-700/20"
             >
@@ -196,63 +176,6 @@ export default function MusicPage() {
             >
               <img src={v.thumbnail} className="rounded-lg" />
               <p className="text-sm mt-2 text-gray-300">{v.title}</p>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addToPlaylist(v);
-                }}
-                className="mt-2 w-full text-xs py-1 rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 text-black hover:opacity-90 transition"
-              >
-                + Add to Playlist
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* PLAYLISTS */}
-        <div>
-          <h2 className={`text-xl mb-3 font-semibold ${neonText}`}>Playlists</h2>
-          <button
-            onClick={createPlaylist}
-            className="mb-4 px-4 py-2 rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 text-black hover:opacity-90 transition"
-          >
-            New Playlist
-          </button>
-
-          {Object.keys(playlists).length === 0 && (
-            <p className="opacity-60">No playlists yet.</p>
-          )}
-
-          {Object.keys(playlists).map((list) => (
-            <div key={list} className="mb-8">
-              <h3
-                className="text-lg cursor-pointer mb-2 text-gray-300 hover:text-pink-400 transition"
-                onClick={() => setSelectedPlaylist(list)}
-              >
-                {list}
-              </h3>
-
-              {selectedPlaylist === list && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {playlists[list].map((v) => (
-                    <div
-                      key={v.id}
-                      className="p-2 bg-[#1a0f1f] rounded-lg relative shadow-md border border-purple-700/20"
-                    >
-                      <img src={v.thumbnail} className="rounded-lg" />
-                      <p className="text-xs mt-2 text-gray-300">{v.title}</p>
-
-                      <button
-                        onClick={() => removeFromPlaylist(list, v.id)}
-                        className="absolute top-1 right-1 text-red-400 text-xs"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -260,4 +183,3 @@ export default function MusicPage() {
     </div>
   );
 }
- 

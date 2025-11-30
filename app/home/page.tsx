@@ -248,7 +248,7 @@ export default function HomePage() {
       // 3. Fetch Music
       let music: MusicVideo[] = [];
       try {
-        const res = await fetch("/api/youtube?q=calm music");
+        const res = await fetch(`/api/youtube?q=${encodeURIComponent("calm music")}`);
         const data = await res.json();
         if (data.videos) {
           music = data.videos.slice(0, 5).map((v: any) => ({ ...v, type: "music" as const }));
@@ -312,20 +312,25 @@ export default function HomePage() {
         </h1>
 
         <nav className="flex gap-6 md:gap-8 text-gray-400 mx-auto md:mx-0">
-          <div className="flex flex-col items-center cursor-pointer text-white" onClick={() => router.push("/home")}>
-            <Home size={22} />
+          <div className="flex flex-col items-center gap-1 cursor-pointer text-white group" onClick={() => router.push("/home")}>
+            <Home size={22} className="group-hover:scale-110 transition-transform duration-200" />
+            <span className="text-[10px] font-medium group-hover:text-pink-400 transition-colors duration-200">Home</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer hover:text-white transition-colors" onClick={() => router.push("/music")}>
-            <Music size={22} />
+          <div className="flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors group" onClick={() => router.push("/music")}>
+            <Music size={22} className="group-hover:scale-110 transition-transform duration-200" />
+            <span className="text-[10px] font-medium group-hover:text-pink-400 transition-colors duration-200">Music</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer hover:text-white transition-colors" onClick={() => router.push("/movies")}>
-            <Film size={22} />
+          <div className="flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors group" onClick={() => router.push("/movies")}>
+            <Film size={22} className="group-hover:scale-110 transition-transform duration-200" />
+            <span className="text-[10px] font-medium group-hover:text-pink-400 transition-colors duration-200">Movies</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer hover:text-white transition-colors" onClick={() => router.push("/articles")}>
-            <Newspaper size={22} />
+          <div className="flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors group" onClick={() => router.push("/articles")}>
+            <Newspaper size={22} className="group-hover:scale-110 transition-transform duration-200" />
+            <span className="text-[10px] font-medium group-hover:text-pink-400 transition-colors duration-200">Reads</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer hover:text-white transition-colors" onClick={() => router.push("/more")}>
-            <MoreHorizontal size={22} />
+          <div className="flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors group" onClick={() => router.push("/more")}>
+            <MoreHorizontal size={22} className="group-hover:scale-110 transition-transform duration-200" />
+            <span className="text-[10px] font-medium group-hover:text-pink-400 transition-colors duration-200">More</span>
           </div>
         </nav>
 
