@@ -16,12 +16,10 @@ export default function NavPage({ isAuthenticated, onCtaClick }: NavProps) {
   const [open, setOpen] = useState(false);
 
   const menuItems = [
-    { label: "Home", path: "/" },
-    { label: "Sleep", path: "/sleep" },
-    { label: "Mindfulness", path: "/mindfulness" },
-    { label: "Mental Health", path: "/mental-health" },
-    { label: "About Us", path: "/about" },
-    { label: "Articles", path: "/articles" },
+    { label: "Mission", path: "/#mission" },
+    { label: "Practice", path: "/#cornerstones" },
+    { label: "Wellness", path: "/#wellness" },
+    { label: "Stories", path: "/#testimonials" },
   ];
 
   const toggleMenu = () => setOpen(!open);
@@ -78,14 +76,14 @@ export default function NavPage({ isAuthenticated, onCtaClick }: NavProps) {
               onClick={() => router.push("/home")}
               className="text-gray-200 hover:text-white text-sm font-medium"
             >
-              Home
+              Dashboard
             </motion.button>
           ) : (
             <>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 onClick={() => router.push("/login")}
-                className="text-gray-300 hover:text-white text-sm font-medium"
+                className="text-gray-300 hover:text-white text-sm font-medium px-4 py-2"
               >
                 Login
               </motion.button>
@@ -93,11 +91,11 @@ export default function NavPage({ isAuthenticated, onCtaClick }: NavProps) {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={onCtaClick}
-                className="px-5 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 
-                           text-black font-semibold text-sm shadow-md hover:shadow-lg transition-all"
+                onClick={() => router.push("/signup")}
+                className="px-5 py-2 rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 
+                           text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all"
               >
-                Get Started
+                Sign Up
               </motion.button>
             </>
           )}
@@ -144,7 +142,7 @@ export default function NavPage({ isAuthenticated, onCtaClick }: NavProps) {
                 onClick={() => closeMenuAndNavigate("/home")}
                 className="w-full text-gray-200 hover:text-white text-sm font-medium py-2"
               >
-                Home
+                Dashboard
               </button>
             ) : (
               <>
@@ -156,11 +154,11 @@ export default function NavPage({ isAuthenticated, onCtaClick }: NavProps) {
                 </button>
 
                 <button
-                  onClick={onCtaClick}
-                  className="w-full mt-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 
-                             text-black font-semibold text-sm shadow-md hover:shadow-lg"
+                  onClick={() => closeMenuAndNavigate("/signup")}
+                  className="w-full mt-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 
+                             text-white font-semibold text-sm shadow-md hover:shadow-lg"
                 >
-                  Get Started
+                  Sign Up
                 </button>
               </>
             )}

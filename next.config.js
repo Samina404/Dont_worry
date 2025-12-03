@@ -5,8 +5,16 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "image.tmdb.org",
-          port: "",
+        port: "",
         pathname: "/t/p/**", // allow all TMDB images
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "randomuser.me",
       },
     ],
   },
