@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../../../lib/supabaseClient";
-import { ArrowLeft, Heart, Send, User } from "lucide-react";
-import Link from "next/link";
+import { Heart, Send, User, MessageSquare, Share2, Navigation } from "lucide-react";
 import { useRouter } from "next/navigation";
+import BackButton from "@/components/BackButton";
 
 // Types
 type Post = {
@@ -14,7 +14,7 @@ type Post = {
   content: string;
   created_at: string;
   likes: string[]; // array of user_ids
-  user_email?: string; // We might store this or fetch it
+  user_email?: string;
   user_metadata?: {
     avatar_url?: string;
     full_name?: string;
@@ -33,8 +33,10 @@ export default function SocialSpacePage() {
   // Fetch User
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      const { data, error } = await supabase.auth.getUser();
+      if (!error && data?.user) {
+        setUser(data.user);
+      }
     };
     getUser();
   }, []);
@@ -147,158 +149,176 @@ export default function SocialSpacePage() {
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+    return `${Math.floor(diffInSeconds / 86400)}d`;
   };
 
+  const accentText = "text-white/90";
+  const glassCard = "bg-white/5 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden";
+
   return (
-    <div className="min-h-screen bg-[#000000] text-white font-sans pb-20 md:pb-0">
-      {/* Top Navigation Bar - Glassmorphic */}
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/more" className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </Link>
-          <h1 className="text-lg font-bold tracking-wide">Social Space</h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#1a0f1f] via-[#12081a] to-[#0a0a0a] text-white font-sans overflow-x-hidden">
+      
+      {/* Background Lighting */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] bg-purple-500/5 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-5%] w-[60%] h-[60%] bg-blue-500/5 rounded-full blur-[120px]"></div>
+      </div>
+
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-[#1a0f1f]/40 backdrop-blur-3xl border-b border-white/5 py-8 px-6 sm:px-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex-1"
+          >
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400">
+              Social Sanctuary
+            </h1>
+            <p className="text-gray-400 max-w-lg font-medium text-sm">
+              Connect with your inner self through the reflections of our shared community.
+            </p>
+          </motion.div>
+          <div className="flex items-center gap-4">
+             <BackButton href="/more" variant="themed" className="scale-100" />
+          </div>
         </div>
       </header>
 
-      <div className="max-w-xl mx-auto">
-        {/* Create Post Section - Refined */}
-        <div className="p-4 border-b border-white/10 bg-black">
-          <div className="flex gap-4">
-            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-[2px] flex-shrink-0">
-              <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
-                 {user?.user_metadata?.avatar_url ? (
-                    <img src={user.user_metadata.avatar_url} alt="User" className="w-full h-full object-cover rounded-full" />
-                 ) : (
-                    <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-400" />
-                    </div>
-                 )}
-              </div>
+      <main className="max-w-7xl mx-auto px-6 py-12 relative z-10">
+        
+        {/* Create Post Section - Centered */}
+        <div className="max-w-3xl mx-auto mb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`${glassCard} rounded-[2rem] p-8`}
+          >
+            <div className="flex gap-6">
+               <div className="hidden sm:block">
+                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                      {user?.user_metadata?.avatar_url ? (
+                        <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-80" />
+                      ) : (
+                        <User className="w-5 h-5 text-gray-600" />
+                      )}
+                  </div>
+               </div>
+               <div className="flex-1">
+                  <textarea
+                    value={newPost}
+                    onChange={(e) => setNewPost(e.target.value)}
+                    placeholder="Share a quiet reflection..."
+                    className="w-full bg-transparent text-white placeholder-gray-600 resize-none outline-none text-xl font-light min-h-[80px]"
+                  />
+                  
+                  <AnimatePresence>
+                    {newPost.length > 0 && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex justify-between items-center mt-6 pt-6 border-t border-white/5"
+                      >
+                        <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{newPost.length} characters</span>
+                        <button
+                          onClick={handlePost}
+                          disabled={submitting}
+                          className="bg-white text-black hover:bg-gray-200 active:scale-95 px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all shadow-xl"
+                        >
+                          {submitting ? "Sharing..." : "Share Post"}
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+               </div>
             </div>
-            <div className="flex-1">
-              <textarea
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                placeholder="What's on your mind?"
-                className="w-full bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none text-[15px] min-h-[60px] py-2"
-              />
-              <AnimatePresence>
-                {newPost && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                    animate={{ opacity: 1, height: 'auto', marginTop: 8 }}
-                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                    className="flex justify-end overflow-hidden"
-                  >
-                    <button
-                      onClick={handlePost}
-                      disabled={submitting}
-                      className="bg-white text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-1.5 rounded-full text-sm font-semibold transition-all"
-                    >
-                      {submitting ? "Posting..." : "Post"}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Feed */}
-        <div className="pb-20">
+        {/* Feed Section Title */}
+        <div className="flex items-center gap-4 mb-10">
+           <Navigation className="w-5 h-5 text-pink-500/50" />
+           <h2 className="text-xs font-black uppercase tracking-[0.4em] text-gray-500">Community Gallery</h2>
+           <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
+        </div>
+
+        {/* Feed Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
           {loading ? (
-            <div className="flex justify-center py-12">
-               <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+               <div className="w-8 h-8 border-2 border-white/5 border-t-white/30 rounded-full animate-spin"></div>
+               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-600">Gathering reflections</p>
             </div>
           ) : posts.length === 0 ? (
-            <div className="py-20 text-center text-gray-500">
-              <p className="text-lg font-medium text-gray-400">No posts yet</p>
-              <p className="text-sm mt-2 text-gray-600">Start the conversation!</p>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-20 text-center"
+            >
+              <p className="text-gray-600 font-medium uppercase tracking-widest text-xs">The sanctuary is currently silent.</p>
+            </motion.div>
           ) : (
           <AnimatePresence mode="popLayout">
             {posts.map((post) => (
               <motion.article
                 key={post.id}
+                layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="border-b border-white/5 p-5 hover:bg-white/[0.02] transition-colors"
+                className={`${glassCard} rounded-[2rem] p-6 hover:bg-white/[0.07] transition-all duration-500 flex flex-col h-full`}
               >
-                <div className="flex gap-4">
-                  {/* Avatar */}
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-[1.5px] cursor-pointer">
-                      <div className="w-full h-full rounded-full bg-black p-[1.5px] overflow-hidden">
-                        {post.user_metadata?.avatar_url ? (
-                          <img
-                            src={post.user_metadata.avatar_url}
-                            alt="User"
-                            className="w-full h-full object-cover rounded-full"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                            <span className="text-xs font-bold text-gray-400">
-                              {post.user_email?.[0].toUpperCase() || "U"}
+                <div className="flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-6">
+                     <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                          {post.user_metadata?.avatar_url ? (
+                            <img src={post.user_metadata.avatar_url} alt="User" className="w-full h-full object-cover opacity-80" />
+                          ) : (
+                            <span className="text-xs font-bold text-gray-600 uppercase">
+                               {post.user_email?.[0]}
                             </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                           <h3 className="font-black text-white text-[14px] tracking-tight truncate">
+                              {post.user_metadata?.full_name || 
+                               post.user_metadata?.name || 
+                               post.user_email?.split('@')[0]}
+                           </h3>
+                           <p className="text-[9px] text-gray-500 font-bold tracking-widest mt-0.5 truncate max-w-[120px]">
+                             {post.user_email?.split('@')[0]}
+                           </p>
+                        </div>
+                     </div>
+                     
+                     <div className="flex flex-col items-end gap-2">
+                        <span className="text-[9px] font-bold text-gray-600 border border-white/5 px-2 py-0.5 rounded-md">
+                           {formatTime(post.created_at)}
+                        </span>
+                        <motion.button 
+                           whileTap={{ scale: 0.8 }}
+                           onClick={() => handleLike(post)}
+                           className="group/btn"
+                        >
+                           <Heart className={`w-3.5 h-3.5 transition-all duration-500 ${post.likes?.includes(user?.id) ? 'fill-white text-white' : 'text-gray-700 group-hover/btn:text-white/40'}`} />
+                        </motion.button>
+                     </div>
                   </div>
 
-                  {/* Content & Like Button */}
-                  <div className="flex-1 flex justify-between items-start gap-4">
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-white text-[15px] cursor-pointer hover:underline decoration-white/30 underline-offset-4 truncate">
-                          {post.user_metadata?.full_name ||
-                            post.user_metadata?.name ||
-                            post.user_email?.split("@")[0] ||
-                            "Anonymous"}
-                        </h3>
-                        <span className="text-[13px] text-gray-500 flex-shrink-0">
-                          • {formatTime(post.created_at)}
-                        </span>
-                      </div>
-                      <p className="text-gray-200 text-[15px] leading-relaxed whitespace-pre-wrap break-words font-light">
-                        {post.content}
-                      </p>
-                    </div>
-
-                    {/* Like Button */}
-                    <div className="flex flex-col items-center gap-1 pt-1 pl-2">
-                      <motion.button
-                        whileTap={{ scale: 0.8 }}
-                        onClick={() => handleLike(post)}
-                        className="group focus:outline-none p-2 -mr-2 rounded-full hover:bg-white/5 transition-colors"
-                      >
-                        <Heart
-                          className={`w-5 h-5 transition-all duration-300 ${
-                            post.likes?.includes(user?.id)
-                              ? "text-red-500 fill-red-500 scale-110"
-                              : "text-gray-500 group-hover:text-gray-300"
-                          }`}
-                        />
-                      </motion.button>
-                      {post.likes?.length > 0 && (
-                        <span className="text-[11px] font-medium text-gray-500">
-                          {post.likes.length}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  <p className="text-white/70 text-[15px] font-light leading-relaxed mb-6 whitespace-pre-wrap selection:bg-white/20 flex-1">
+                     {post.content}
+                  </p>
                 </div>
               </motion.article>
             ))}
           </AnimatePresence>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

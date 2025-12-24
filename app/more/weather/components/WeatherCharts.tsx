@@ -129,58 +129,60 @@ export default function WeatherCharts({ data }: WeatherChartsProps) {
     },
   };
 
+  const subCardStyle = "bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 shadow-xl transition-all duration-300 hover:bg-white/10";
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
       
       {/* Air Quality Index */}
-      <div className="bg-[#2b2b2d] rounded-[30px] p-6 shadow-lg border border-[#3a3a3c]">
+      <div className={subCardStyle}>
         <div className="flex justify-between items-center mb-6">
-          <h3 className="font-bold text-lg text-gray-100">Air Quality Index</h3>
-          <div className="flex gap-2 text-gray-400">
-            <button className="hover:text-gray-200"><Download className="w-5 h-5" /></button>
-            <button className="hover:text-gray-200"><MoreVertical className="w-5 h-5" /></button>
+          <h3 className="font-bold text-lg text-white">Air Quality Index</h3>
+          <div className="flex gap-2 text-gray-500">
+            <button className="hover:text-pink-400 p-1.5 transition-colors"><Download className="w-5 h-5" /></button>
+            <button className="hover:text-pink-400 p-1.5 transition-colors"><MoreVertical className="w-5 h-5" /></button>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-            <span className="text-xs text-gray-400">Clean air</span>
+        <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <div className="w-3 h-3 rounded-full bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]"></div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Current Health</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-200"></div>
-            <span className="text-xs text-gray-400">Average quality</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-            <span className="text-xs text-gray-400">Harmful level</span>
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <div className="w-3 h-3 rounded-full bg-blue-500/30"></div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Normal Range</span>
           </div>
         </div>
 
-        <div className="h-[200px] w-full">
+        <div className="h-[220px] w-full">
           <Line options={aqOptions} data={aqData} />
         </div>
       </div>
 
       {/* Chance of Rain */}
-      <div className="bg-[#2b2b2d] rounded-[30px] p-6 shadow-lg border border-[#3a3a3c]">
+      <div className={subCardStyle}>
         <div className="flex justify-between items-center mb-6">
-          <h3 className="font-bold text-lg text-gray-100">Chance Of Rain</h3>
-          <div className="flex gap-2 text-gray-400">
-            <button className="hover:text-gray-200"><Download className="w-5 h-5" /></button>
-            <button className="hover:text-gray-200"><MoreVertical className="w-5 h-5" /></button>
+          <h3 className="font-bold text-lg text-white">Precipitation</h3>
+          <div className="flex gap-2 text-gray-500">
+            <button className="hover:text-yellow-400 p-1.5 transition-colors"><Download className="w-5 h-5" /></button>
+            <button className="hover:text-yellow-400 p-1.5 transition-colors"><MoreVertical className="w-5 h-5" /></button>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-6">
-          <span className="text-xs text-gray-400">Cloudy: 0-30%</span>
-          <span className="text-xs text-gray-400">Rain: 60-80%</span>
-          <span className="text-xs text-gray-400">Heavy rain: 80-100%</span>
+        <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+           <div className="flex items-center gap-2 whitespace-nowrap">
+            <div className="w-3 h-3 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]"></div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">High Probability</span>
+          </div>
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <div className="w-3 h-3 rounded-full bg-white/10"></div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Low Probability</span>
+          </div>
         </div>
 
-        <div className="h-[200px] w-full">
+        <div className="h-[220px] w-full">
           <Bar options={rainOptions} data={rainData} />
         </div>
       </div>

@@ -26,8 +26,8 @@ export default function MoodCheckInPage() {
   // -----------------------------------------------------------
   useEffect(() => {
     const checkMoodToday = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const currentUser = userData.user;
+      const { data, error } = await supabase.auth.getUser();
+      const currentUser = data?.user;
       setUser(currentUser);
 
       if (!currentUser) return;

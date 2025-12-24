@@ -42,13 +42,14 @@ export default function LoginPage() {
 
       if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== todayStr) {
         // Redirect to mood check-in page
-        router.push("/mood-check-in");
+        router.push("/moodcheckin");
       } else {
         // Already submitted today, go to home
         router.push("/home");
       }
     } catch (err: any) {
-      alert(err.message);
+      console.error("Login error:", err);
+      alert(err.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }

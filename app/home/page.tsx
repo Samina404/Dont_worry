@@ -85,11 +85,11 @@ const SocialPostCard = ({ post, user, onLike }: { post: SocialPost; user: any; o
   <motion.article
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#1e1e1e] border border-white/5 p-4 rounded-xl mb-4"
+    className="bg-white/[0.03] backdrop-blur-xl border border-white/5 p-6 rounded-[2rem] mb-4 hover:bg-white/[0.06] transition-all duration-300"
   >
     <div className="flex gap-3">
       <div className="flex-shrink-0">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-[1.5px]">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-blue-500 p-[1.5px]">
           <div className="w-full h-full rounded-full bg-black p-[1.5px] overflow-hidden">
             {post.user_metadata?.avatar_url ? (
               <img src={post.user_metadata.avatar_url} alt="User" className="w-full h-full object-cover rounded-full" />
@@ -124,7 +124,7 @@ const ArticleCard = ({ article }: { article: Article }) => (
   <motion.article
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#1e1e1e] border border-white/5 rounded-xl overflow-hidden mb-4 cursor-pointer hover:bg-[#252525] transition-colors"
+    className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden mb-4 cursor-pointer hover:bg-white/[0.06] transition-all duration-300 group"
     onClick={() => window.open(article.url, "_blank")}
   >
     {article.urlToImage && (
@@ -150,7 +150,7 @@ const MusicCard = ({ video }: { video: MusicVideo }) => (
   <motion.article
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#1e1e1e] border border-white/5 rounded-xl overflow-hidden mb-4 cursor-pointer hover:bg-[#252525] transition-colors"
+    className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden mb-4 cursor-pointer hover:bg-white/[0.06] transition-all duration-300 group"
     onClick={() => window.open(`https://www.youtube.com/watch?v=${video.id}`, "_blank")}
   >
     <div className="relative">
@@ -173,7 +173,7 @@ const PlaceCard = ({ place }: { place: Place }) => (
   <motion.article
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#1e1e1e] border border-white/5 rounded-xl overflow-hidden mb-4 cursor-pointer hover:bg-[#252525] transition-colors"
+    className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden mb-4 cursor-pointer hover:bg-white/[0.06] transition-all duration-300 group"
     onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${place.geometry.lat},${place.geometry.lng}&query_place_id=${place.id}`, "_blank")}
   >
     <div className="relative h-48 bg-gray-800">
@@ -196,6 +196,43 @@ const PlaceCard = ({ place }: { place: Place }) => (
     </div>
   </motion.article>
 );
+
+// --- Fallback Data ---
+const MOCK_ARTICLES: Article[] = [
+  {
+    id: "mock-1",
+    title: "The Architecture of a Peaceful Mind",
+    description: "Explore how cognitive spatial awareness can help reduce daily anxiety and boost focus.",
+    url: "#",
+    urlToImage: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop",
+    source: "Sanctuary Journal",
+    type: "article"
+  },
+  {
+    id: "mock-2",
+    title: "Circadian Rhythms & Digital Wellness",
+    description: "Aligning your screen time with natural light cycles for deeper, restorative sleep.",
+    url: "#",
+    urlToImage: "https://images.unsplash.com/photo-1511295742362-92c96b504802?q=80&w=800&auto=format&fit=crop",
+    source: "Wellness Tech",
+    type: "article"
+  }
+];
+
+const MOCK_MUSIC: MusicVideo[] = [
+  {
+    id: "jfKfPfyJRdk",
+    title: "Deep Focus: Lofi Beats for Study & Meditation",
+    thumbnail: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=800&auto=format&fit=crop",
+    type: "music"
+  },
+  {
+    id: "5qap5aO4i9A",
+    title: "Ambient Zen: Ethereal Sounds for Sleep",
+    thumbnail: "https://images.unsplash.com/photo-1445985543470-41fba5c3144a?q=80&w=800&auto=format&fit=crop",
+    type: "music"
+  }
+];
 
 // --- Main Page Component ---
 
@@ -240,20 +277,30 @@ export default function HomePage() {
       try {
         const res = await fetch("/api/news?q=mental health&pageSize=5");
         const data = await res.json();
-        if (data.articles) {
+        if (data.articles && data.articles.length > 0) {
           articles = data.articles.map((a: any) => ({ ...a, id: a.url, type: "article" as const }));
+        } else {
+          articles = MOCK_ARTICLES;
         }
-      } catch (e) { console.error("Error fetching articles", e); }
+      } catch (e) { 
+        console.error("Error fetching articles", e);
+        articles = MOCK_ARTICLES;
+      }
 
       // 3. Fetch Music
       let music: MusicVideo[] = [];
       try {
         const res = await fetch(`/api/youtube?q=${encodeURIComponent("calm music")}`);
         const data = await res.json();
-        if (data.videos) {
+        if (data.videos && data.videos.length > 0) {
           music = data.videos.slice(0, 5).map((v: any) => ({ ...v, type: "music" as const }));
+        } else {
+          music = MOCK_MUSIC;
         }
-      } catch (e) { console.error("Error fetching music", e); }
+      } catch (e) { 
+        console.error("Error fetching music", e);
+        music = MOCK_MUSIC;
+      }
 
       // 4. Fetch Places (Try to get location, else skip or use default)
       let places: Place[] = [];
@@ -297,17 +344,38 @@ export default function HomePage() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-[#000000] text-white flex justify-center items-center">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#07040e] text-white flex flex-col justify-center items-center gap-6">
+        <div className="relative">
+           <div className="w-12 h-12 border-b-2 border-pink-500 rounded-full animate-spin"></div>
+        </div>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-pink-500/30 animate-pulse">Loading the page </p>
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white font-sans pb-20 md:pb-0">
+    <div className="min-h-screen bg-[#07040e] text-white font-sans pb-20 md:pb-0 relative overflow-hidden">
       
+      {/* 🌌 ATMOSPHERIC SANCTUARY BACKGROUND */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {/* Radiant Core Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.05),transparent_70%)]" />
+        
+        {/* Dynamic Orbs */}
+        <motion.div 
+          animate={{ x: [0, 60, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-1/4 -right-1/4 w-[80%] h-[80%] bg-pink-500/[0.07] rounded-full blur-[140px]" 
+        />
+        <motion.div 
+          animate={{ x: [0, -40, 0], y: [0, 60, 0], scale: [1.1, 1, 1.1] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-1/4 -left-1/4 w-[80%] h-[80%] bg-blue-600/[0.07] rounded-full blur-[140px]" 
+        />
+      </div>
+
       {/* Navigation Bar */}
-      <header className="sticky top-0 z-50 w-full flex justify-between items-center px-4 md:px-8 py-4 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-pink-400 to-yellow-400 bg-clip-text text-transparent hidden md:block">
+      <header className="sticky top-0 z-50 w-full flex justify-between items-center px-4 md:px-8 py-6 bg-[#07040e]/80 backdrop-blur-[40px] border-b border-white/[0.03]">
+        <h1 className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-white to-yellow-400 hidden md:block">
           Don’t Worry
         </h1>
 
@@ -374,10 +442,10 @@ export default function HomePage() {
                 <div className="lg:col-span-3 flex flex-col gap-6">
                     
                     {/* Music Widget */}
-                    <div className="bg-[#111] rounded-3xl p-5 border border-white/5 flex flex-col h-[420px]">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-lg text-white">Relaxing Music</h3>
-                            <button onClick={() => router.push('/music')} className="text-xs text-pink-400 hover:text-pink-300">View All</button>
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-6 border border-white/5 flex flex-col h-[460px] shadow-2xl relative overflow-hidden group">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-black text-xl text-white tracking-tight">Musics for you</h3>
+                            <button onClick={() => router.push('/music')} className="text-[10px] font-black uppercase tracking-widest text-pink-400 hover:text-white transition-colors">Listen All</button>
                         </div>
                         
                         {/* Featured Song (Top) */}
@@ -411,10 +479,10 @@ export default function HomePage() {
                     </div>
 
                     {/* Articles Widget (Small) */}
-                    <div className="bg-[#111] rounded-3xl p-5 border border-white/5 flex-1">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-lg text-white">Reads</h3>
-                            <button onClick={() => router.push('/articles')} className="text-xs text-pink-400 hover:text-pink-300">More</button>
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-6 border border-white/5 flex-1 relative overflow-hidden min-h-[280px]">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-black text-xl text-white tracking-tight">Insights</h3>
+                            <button onClick={() => router.push('/articles')} className="text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-colors">Read More</button>
                         </div>
                         <div className="space-y-4">
                              {feed.filter(i => i.type === 'article').slice(0, 2).map((article: any) => (
@@ -439,17 +507,17 @@ export default function HomePage() {
                 <div className="lg:col-span-5 flex flex-col gap-6">
                     
                     {/* Hero Card */}
-                    <div className="relative h-[500px] rounded-[32px] overflow-hidden group">
+                    <div className="relative h-[500px] rounded-[3rem] overflow-hidden group shadow-2xl">
                         <img 
                             src="https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=1000&auto=format&fit=crop" 
                             alt="Nature" 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0616] via-[#0b0616]/20 to-transparent" />
                         
-                        <div className="absolute top-6 left-6">
-                            <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-medium text-white border border-white/10">
-                                Daily Focus
+                        <div className="absolute top-8 left-8">
+                            <span className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-xl text-[10px] font-black uppercase tracking-widest text-white border border-white/10">
+                                Daily Sanctuary
                             </span>
                         </div>
 
@@ -460,30 +528,30 @@ export default function HomePage() {
                             <p className="text-gray-300 text-sm mb-6 max-w-md">
                                 Take a moment to breathe. Your mental health is a priority, not an option.
                             </p>
-                            <button onClick={() => router.push('/moodcheckin')} className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-orange-500/20">
+                            <button onClick={() => router.push('/moodcheckin')} className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-pink-500/20">
                                 <PlayCircle className="w-6 h-6 text-white fill-white" />
                             </button>
                         </div>
                     </div>
 
-                    {/* Daily Quotes (Replaces Quick Tabs) */}
+                    {/* Daily Quotes */}
                     <div className="grid grid-cols-1 gap-4">
-                        <div className="bg-[#111] p-6 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors">
-                             <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                             <Quote className="w-8 h-8 text-pink-500/20 absolute top-6 right-6" />
-                             <p className="text-lg font-medium text-gray-200 leading-relaxed pr-8">"The only way to do great work is to love what you do."</p>
-                             <div className="flex items-center gap-2 mt-4">
-                                <div className="w-1 h-1 rounded-full bg-pink-500"></div>
-                                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Steve Jobs</p>
+                        <div className="bg-white/[0.03] backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group hover:bg-white/[0.06] transition-all duration-500">
+                             <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+                             <Quote className="w-8 h-8 text-pink-500/10 absolute top-8 right-8" />
+                             <p className="text-xl font-serif font-medium text-white/90 leading-relaxed italic pr-12">"The only way to do great work is to love what you do."</p>
+                             <div className="flex items-center gap-3 mt-6">
+                                <div className="h-px w-6 bg-pink-500/30"></div>
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Steve Jobs</p>
                              </div>
                         </div>
-                         <div className="bg-[#111] p-6 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors">
-                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                             <Quote className="w-8 h-8 text-blue-500/20 absolute top-6 right-6" />
-                             <p className="text-lg font-medium text-gray-200 leading-relaxed pr-8">"Believe you can and you're halfway there."</p>
-                             <div className="flex items-center gap-2 mt-4">
-                                <div className="w-1 h-1 rounded-full bg-blue-500"></div>
-                                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Theodore Roosevelt</p>
+                         <div className="bg-white/[0.03] backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group hover:bg-white/[0.06] transition-all duration-500">
+                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+                             <Quote className="w-8 h-8 text-blue-500/10 absolute top-8 right-8" />
+                             <p className="text-xl font-serif font-medium text-white/90 leading-relaxed italic pr-12">"Believe you can and you're halfway there."</p>
+                             <div className="flex items-center gap-3 mt-6">
+                                <div className="h-px w-6 bg-blue-500/30"></div>
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Theodore Roosevelt</p>
                              </div>
                         </div>
                     </div>
@@ -494,15 +562,15 @@ export default function HomePage() {
                 <div className="lg:col-span-4 flex flex-col gap-6">
                     
                     {/* Mood Stats Widget (Enhanced) */}
-                    <div className="bg-[#111] rounded-3xl p-6 border border-white/5 relative overflow-hidden">
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group">
                         {/* Background Glow */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-b from-pink-500/10 to-transparent pointer-events-none"></div>
                         
                         <div className="flex justify-between items-start mb-8 relative z-10">
                             <div>
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                                    <p className="text-xs text-orange-400 uppercase tracking-wider font-bold">Mood Analysis</p>
+                                    <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+                                    <p className="text-xs text-pink-400 uppercase tracking-wider font-bold">Mood Analysis</p>
                                 </div>
                                 <h3 className="text-3xl font-bold text-white">Positive <span className="text-gray-500 text-lg font-normal">+12%</span></h3>
                             </div>
@@ -511,7 +579,7 @@ export default function HomePage() {
                                 className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors group"
                             >
                                 <span className="text-xs font-medium text-gray-400 group-hover:text-white">History</span>
-                                <TrendingUp className="w-4 h-4 text-orange-400" />
+                                <TrendingUp className="w-4 h-4 text-pink-400" />
                             </button>
                         </div>
                         
@@ -521,22 +589,22 @@ export default function HomePage() {
                                 {/* Gradient Defs */}
                                 <defs>
                                     <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#f97316" stopOpacity="0.5" />
-                                        <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+                                        <stop offset="0%" stopColor="#ec4899" stopOpacity="0.4" />
+                                        <stop offset="100%" stopColor="#ec4899" stopOpacity="0" />
                                     </linearGradient>
                                 </defs>
                                 {/* Area */}
                                 <path d="M0,50 L0,30 C10,35 20,20 30,25 S50,5 60,15 S80,30 100,20 L100,50 Z" fill="url(#chartGradient)" />
                                 {/* Line */}
-                                <path d="M0,30 C10,35 20,20 30,25 S50,5 60,15 S80,30 100,20" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" />
+                                <path d="M0,30 C10,35 20,20 30,25 S50,5 60,15 S80,30 100,20" fill="none" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" />
                                 {/* Points */}
-                                <circle cx="30" cy="25" r="2" fill="#fff" stroke="#f97316" strokeWidth="1" />
-                                <circle cx="60" cy="15" r="2" fill="#fff" stroke="#f97316" strokeWidth="1" />
-                                <circle cx="100" cy="20" r="3" fill="#fff" stroke="#f97316" strokeWidth="2" />
+                                <circle cx="30" cy="25" r="2" fill="#fff" stroke="#ec4899" strokeWidth="1" />
+                                <circle cx="60" cy="15" r="2" fill="#fff" stroke="#ec4899" strokeWidth="1" />
+                                <circle cx="100" cy="20" r="3" fill="#fff" stroke="#ec4899" strokeWidth="2" />
                                 
                                 {/* Tooltip-like label */}
                                 <g transform="translate(75, 0)">
-                                    <rect x="0" y="0" width="25" height="12" rx="4" fill="#f97316" />
+                                    <rect x="0" y="0" width="25" height="12" rx="4" fill="#ec4899" />
                                     <text x="12.5" y="8" textAnchor="middle" fontSize="6" fill="white" fontWeight="bold">85%</text>
                                 </g>
                             </svg>
@@ -548,10 +616,13 @@ export default function HomePage() {
                     </div>
 
                     {/* Social Feed Widget */}
-                    <div className="bg-[#111] rounded-3xl p-5 border border-white/5 flex-1 h-[300px] flex flex-col">
-                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-lg text-white">Community</h3>
-                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/5 flex-1 h-[320px] flex flex-col relative overflow-hidden">
+                         <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-black text-xl text-white tracking-tight">Community</h3>
+                            <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 rounded-full">
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-green-400">Live</span>
+                            </div>
                         </div>
                         
                         <div className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
@@ -559,9 +630,9 @@ export default function HomePage() {
                                 <p className="text-gray-500 text-sm text-center py-4">No recent posts</p>
                             ) : (
                                 feed.filter(i => i.type === 'post').slice(0, 5).map((post: any) => (
-                                    <div key={post.id} className="bg-[#1a1a1a] p-3 rounded-xl border border-white/5">
-                                        <div className="flex gap-3 mb-2">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-orange-500 p-[1px] flex-shrink-0">
+                                    <div key={post.id} className="bg-white/5 p-4 rounded-2xl border border-white/5 backdrop-blur-md">
+                                        <div className="flex gap-3 mb-3">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 p-[1px] flex-shrink-0">
                                                 <div className="w-full h-full rounded-full bg-black overflow-hidden">
                                                     {post.user_metadata?.avatar_url ? (
                                                         <img src={post.user_metadata.avatar_url} className="w-full h-full object-cover" />

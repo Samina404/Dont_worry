@@ -14,9 +14,10 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.auth.getUser();
+      const user = data?.user;
 
-      if (!user) {
+      if (error || !user) {
         router.push("/login"); // redirect if not logged in
         return;
       }

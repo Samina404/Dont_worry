@@ -27,7 +27,12 @@ export default function AuthPage() {
 
       router.push(tab === "signup" ? "/onboard" : "/home");
     } catch (err: any) {
-      alert(err.message);
+      console.error("Auth error:", err);
+      if (err.message === "Failed to fetch") {
+        alert("Network error: Could not connect to Supabase. Please check your internet connection and Supabase configuration.");
+      } else {
+        alert(err.message || "An error occurred during authentication");
+      }
     } finally {
       setLoading(false);
     }

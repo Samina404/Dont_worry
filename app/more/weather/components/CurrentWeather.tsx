@@ -22,57 +22,58 @@ export default function CurrentWeather({ data, location }: CurrentWeatherProps) 
   });
 
   return (
-    <div className="relative w-full h-[300px] rounded-[30px] overflow-hidden p-8 text-white shadow-xl group">
+    <div className="relative w-full h-[320px] p-8 text-white overflow-hidden group">
 
-      {/* 🌅 PURPLE → ORANGE THEME BACKGROUND */}
+      {/* 🌌 ATMOSPHERIC BACKGROUND */}
       <div
-        className={`absolute inset-0 transition-all duration-500 ${
+        className={`absolute inset-0 transition-all duration-700 ${
           current.isDay
-            ? "bg-gradient-to-br from-[#3A0CA3] via-[#7209B7] to-[#F97316]"
-            : "bg-gradient-to-br from-[#1a1028] via-[#3A0CA3] to-[#D35400]"
+            ? "bg-white/5"
+            : "bg-black/20"
         }`}
       >
-        {/* GLOWING DECORATIVE ORBS */}
-        <div className="absolute top-[-15%] right-[-10%] w-64 h-64 bg-orange-400/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-48 h-48 bg-purple-500/20 rounded-full blur-2xl" />
+        {/* SUBTLE GLOWING ORBS */}
+        <div className="absolute top-[-20%] right-[-10%] w-72 h-72 bg-pink-400/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-64 h-64 bg-blue-400/10 rounded-full blur-[100px]" />
       </div>
 
       {/* MAIN CONTENT */}
       <div className="relative z-10 flex flex-col justify-between h-full">
 
-        {/* Location + Temp Unit */}
+        {/* Location + Units */}
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2 bg-white/15 backdrop-blur-lg px-4 py-2 rounded-full">
-            <MapPin className="w-4 h-4" />
-            <span className="font-medium">
+          <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/10 shadow-lg">
+            <MapPin className="w-4 h-4 text-pink-400" />
+            <span className="font-medium text-gray-200">
               {location.name}, {location.country}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 bg-white/15 backdrop-blur-lg px-3 py-2 rounded-full">
-            <span>°C</span>
-            <ChevronDown className="w-4 h-4" />
+          <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/10 shadow-lg">
+            <span className="text-gray-200 font-semibold">°C</span>
           </div>
         </div>
 
         {/* Temperature Section */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-4">
-            <h1 className="text-7xl font-extrabold tracking-tighter">
-              {current.temp}°C
+          <div className="flex items-center gap-6">
+            <h1 className="text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
+              {current.temp}°
             </h1>
 
             {/* Weather Icon */}
             {current.icon && (
-              <current.icon className="w-16 h-16 text-orange-300 drop-shadow-glow" />
+              <current.icon className="w-20 h-20 text-yellow-300 drop-shadow-[0_0_15px_rgba(253,224,71,0.3)] animate-pulse" />
             )}
           </div>
 
-          <p className="text-2xl font-medium mt-2">{current.condition}</p>
-
-          <div className="flex gap-4 text-white/80 mt-1">
-            <span>High: {current.high}°</span>
-            <span>Low: {current.low}°</span>
+          <div className="flex items-center gap-3">
+             <p className="text-3xl font-bold text-white">{current.condition}</p>
+             <div className="h-4 w-px bg-white/20"></div>
+             <div className="flex gap-4 text-gray-400 font-medium">
+                <span>H: {current.high}°</span>
+                <span>L: {current.low}°</span>
+             </div>
           </div>
         </div>
 

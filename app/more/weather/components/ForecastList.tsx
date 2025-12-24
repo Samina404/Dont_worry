@@ -6,36 +6,34 @@ interface ForecastListProps {
 
 export default function ForecastList({ forecast }: ForecastListProps) {
   return (
-    <div className="bg-gradient-to-b from-[#9a3f97] to-[#300770] rounded-[30px] p-8 shadow-lg text-white">
-      <h2 className="text-xl font-bold mb-6">Forecast</h2>
-      
-      {/* City tabs placeholder */}
-      <div className="flex gap-4 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-        <button className="px-6 py-2 bg-white/20 text-white rounded-full font-medium whitespace-nowrap backdrop-blur-sm">
+    <div className="p-8 text-white h-full flex flex-col">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">Forecast</h2>
+        <div className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-semibold text-gray-400">
           7 Days
-        </button>
+        </div>
       </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+      
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 flex-1">
         {forecast.map((day, index) => (
           <div 
             key={day.date}
-            className={`flex flex-col items-center p-4 rounded-3xl transition-all ${
+            className={`flex flex-col items-center justify-center p-4 rounded-3xl transition-all duration-300 ${
               index === 0 
-                ? 'bg-white/20 border-2 border-white/30' 
-                : 'hover:bg-white/10'
+                ? 'bg-white/10 border border-white/20 shadow-xl' 
+                : 'hover:bg-white/5 border border-transparent hover:border-white/10'
             }`}
           >
-            <span className="font-medium mb-1">{day.dayName}</span>
-            <span className="text-sm mb-4 opacity-70">
-              {new Date(day.date).getDate()}
+            <span className={`font-bold mb-1 ${index === 0 ? 'text-pink-400' : 'text-gray-200'}`}>{day.dayName}</span>
+            <span className="text-xs mb-4 text-gray-500 font-medium">
+              {new Date(day.date).toLocaleDateString("en-US", { month: 'short', day: 'numeric' })}
             </span>
             
-            {day.icon && <day.icon className={`w-8 h-8 mb-4 ${index === 0 ? 'text-yellow-400' : 'text-white/70'}`} />}
+            {day.icon && <day.icon className={`w-10 h-10 mb-4 ${index === 0 ? 'text-yellow-300 drop-shadow-glow' : 'text-gray-400'}`} />}
             
-            <div className="flex flex-col items-center gap-1">
-              <span className="font-bold">{day.tempMax}°</span>
-              <span className="text-sm opacity-70">{day.tempMin}°</span>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-lg font-black text-white">{day.tempMax}°</span>
+              <span className="text-xs text-gray-500 font-bold">{day.tempMin}°</span>
             </div>
           </div>
         ))}

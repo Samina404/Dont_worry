@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Quote, CloudSun, MapPin, ArrowRight, Sparkles, MessageCircleHeart } from "lucide-react";
+import { Quote, CloudSun, MapPin, ArrowRight, Sparkles, MessageCircleHeart, Navigation, Sun, Compass } from "lucide-react";
 import { motion } from "framer-motion";
 import BackButton from "@/components/BackButton";
 
@@ -11,122 +11,161 @@ const MENU_ITEMS = [
     description: "Get inspired with a new quote every day.",
     icon: Quote,
     href: "/more/quote",
-    color: "from-pink-500 to-rose-500",
+    accent: "bg-pink-500/10 text-pink-400",
     delay: 0.1,
   },
   {
     title: "Weather Forecast",
     description: "Check real-time weather and forecasts.",
-    icon: CloudSun,
+    icon: Sun,
     href: "/more/weather",
-    color: "from-blue-500 to-cyan-500",
+    accent: "bg-blue-500/10 text-blue-400",
     delay: 0.2,
   },
   {
     title: "Explore Nearby",
     description: "Discover amazing places around you.",
-    icon: MapPin,
+    icon: Compass,
     href: "/more/explore",
-    color: "from-purple-500 to-violet-500",
+    accent: "bg-yellow-500/10 text-yellow-400",
     delay: 0.3,
   },
   {
     title: "Social Space",
     description: "Connect, share, and see what others are up to.",
-    icon: MessageCircleHeart,
+    icon: Sparkles,
     href: "/more/social",
-    color: "from-green-500 to-emerald-500",
+    accent: "bg-purple-500/10 text-purple-400",
     delay: 0.4,
   },
 ];
 
 export default function MorePage() {
-  const neonText = "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400";
+  const neonText = "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-white to-yellow-400";
+  const glassCard = "bg-white/[0.03] backdrop-blur-3xl border border-white/10 shadow-2xl transition-all duration-500";
   
   return (
-    <div className="min-h-screen bg-[#3b234a] font-sans text-white flex flex-col">
+    <div className="min-h-screen bg-[#130b1b] font-sans text-white flex flex-col relative overflow-hidden">
+      
+      {/* 🌌 RADIANT SANCTUARY BACKGROUND */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {/* Main Central Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(76,29,149,0.15),transparent_70%)]" />
+        
+        {/* Header Specific Glow */}
+        <div className="absolute top-0 left-0 w-[50%] h-[30%] bg-purple-600/10 rounded-full blur-[120px]" />
+        
+        {/* Shifting Orbs */}
+        <motion.div 
+          animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-15%] right-[-10%] w-[70%] h-[70%] bg-pink-600/15 rounded-full blur-[130px]" 
+        />
+        <motion.div 
+          animate={{ x: [0, -20, 0], y: [0, 40, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[-15%] left-[-10%] w-[70%] h-[70%] bg-blue-600/10 rounded-full blur-[130px]" 
+        />
+        <motion.div 
+          animate={{ opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[20%] left-[20%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[100px]" 
+        />
+      </div>
+
       {/* Header */}
-      <header className="py-6 px-6 border-b border-purple-900/40 bg-[#3b234a]/70 backdrop-blur-xl sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-pink-400 to-yellow-400 rounded-2xl shadow-lg shadow-pink-500/30">
-                <Sparkles className="w-7 h-7 text-black" />
-              </div>
-              <div>
-                <h1 className={`text-3xl font-bold ${neonText}`}>
-                  More Options
-                </h1>
-                <p className="text-gray-300 text-sm mt-1">Explore additional features and tools</p>
-              </div>
-            </div>
-            <BackButton variant="themed" href="/home" />
+      <header className="sticky top-0 z-50 bg-white/[0.02] backdrop-blur-[40px] border-b border-white/10 py-8 px-6 sm:px-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex-1"
+          >
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400">
+              More Options
+            </h1>
+            <p className="text-gray-500 max-w-lg font-medium text-sm">
+              Discover additional dimensions of mindfulness and utility tailored for your journey.
+            </p>
+          </motion.div>
+          <div className="flex items-center gap-4">
+            <BackButton variant="themed" href="/home" className="scale-110" />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow p-6 md:p-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <main className="flex-grow p-6 md:p-12 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          
+          {/* Section Divider */}
+          <div className="flex items-center gap-4 mb-12">
+             <div className="flex-1 h-px bg-white/5" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {MENU_ITEMS.map((item) => (
               <Link key={item.href} href={item.href} className="block group">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: item.delay }}
-                  className="h-full bg-[#1a0f1f] border border-purple-700/30 rounded-3xl p-8 relative overflow-hidden hover:border-purple-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-2"
+                  transition={{ delay: item.delay, duration: 0.8 }}
+                  className={`${glassCard} rounded-[3rem] p-10 relative overflow-hidden group-hover:bg-white/[0.08] group-hover:border-white/20`}
                 >
-                  {/* Background Gradient Blob */}
-                  <div
-                    className={`absolute -right-16 -top-16 w-48 h-48 bg-gradient-to-br ${item.color} opacity-10 blur-3xl rounded-full group-hover:opacity-20 transition-opacity duration-500`}
-                  />
+                  <div className="flex items-start gap-8">
+                    {/* Icon Container */}
+                    <div className={`p-6 rounded-[2rem] transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${item.accent}`}>
+                      <item.icon className="w-8 h-8" />
+                    </div>
 
-                  {/* Icon */}
-                  <div
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    <item.icon className="w-8 h-8 text-white" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-2xl font-black tracking-tight text-white group-hover:text-pink-400 transition-colors">
+                          {item.title}
+                        </h2>
+                        <ArrowRight className="w-5 h-5 text-gray-700 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                      </div>
+                      <p className="text-gray-400 text-lg font-light leading-relaxed max-w-md">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Text */}
-                  <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-yellow-400 transition-all">
-                    {item.title}
-                  </h2>
-                  <p className="text-gray-400 text-base leading-relaxed mb-6">
-                    {item.description}
-                  </p>
-
-                  {/* Arrow */}
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400">Explore</span>
-                    <ArrowRight className="w-5 h-5 text-pink-400 group-hover:translate-x-2 transition-transform" />
-                  </div>
-
-                  {/* Decorative corner accent */}
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-purple-500/10 to-transparent rounded-tl-full" />
+                  {/* Aesthetic Corner Glow */}
+                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 </motion.div>
               </Link>
             ))}
           </div>
 
-          {/* Additional Info Section */}
+          {/* Expanded Footer Card */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-12 p-8 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-700/30 rounded-3xl backdrop-blur-sm"
+            transition={{ delay: 0.6 }}
+            className="mt-16 p-12 bg-white/[0.02] border border-white/5 rounded-[3.5rem] backdrop-blur-sm relative overflow-hidden text-center md:text-left"
           >
-            <h3 className={`text-xl font-bold mb-3 ${neonText}`}>
-              ✨ Discover More Features
-            </h3>
-            <p className="text-gray-300 leading-relaxed">
-              These tools are designed to enhance your mental wellness journey. From daily inspiration 
-              to weather updates and local exploration, we've got everything you need to stay balanced and informed.
-            </p>
+            <div className="relative z-10 max-w-3xl">
+              <h3 className="text-2xl font-black mb-4 text-white">✨ Elevate Your Experience</h3>
+              <p className="text-gray-500 text-lg font-light leading-relaxed">
+                Our suite of extras is constantly evolving. Each module is crafted with a focus on premium aesthetics and effortless utility, ensuring your digital sanctuary remains both beautiful and functional.
+              </p>
+            </div>
+            
+            {/* Visual Decoration */}
+            <div className="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-pink-500/[0.03] to-transparent pointer-none hidden md:block" />
           </motion.div>
+
         </div>
       </main>
+
+      {/* Final Accent */}
+      <div className="py-12 flex justify-center opacity-20">
+         <div className="w-1 h-1 rounded-full bg-white mx-1" />
+         <div className="w-1 h-1 rounded-full bg-white mx-1" />
+         <div className="w-1 h-1 rounded-full bg-white mx-1" />
+      </div>
+
     </div>
   );
 }

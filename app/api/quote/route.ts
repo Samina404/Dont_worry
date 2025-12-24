@@ -1,16 +1,18 @@
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        // Get today's date as a seed for consistent daily quotes
+        const { searchParams } = new URL(request.url);
+        const isRandom = searchParams.get('random') === 'true';
+
+        // Get today's date formatted
         const today = new Date();
         const dateString = today.toISOString().split('T')[0];
 
-        // Use date as seed to get consistent quote for the day
-        const seed = dateString.split('-').join('');
-
-        // Fetch from ZenQuotes API (free, no API key required)
-        const response = await fetch('https://zenquotes.io/api/today', {
+        // Fetch from ZenQuotes API
+        // If random is true, use /random endpoint, otherwise use /today
+        const apiUrl = isRandom ? 'https://zenquotes.io/api/random' : 'https://zenquotes.io/api/today';
+        const response = await fetch(apiUrl, {
             cache: 'no-store'
         });
 

@@ -43,30 +43,36 @@ export default function WeatherSearch({ onLocationSelect }: WeatherSearchProps) 
   };
 
   return (
-    <div ref={wrapperRef} className="relative w-full max-w-md">
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+    <div ref={wrapperRef} className="relative w-full">
+      <div className="relative group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-pink-400 transition-colors" />
         <input
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search your location"
-          className="w-full pl-12 pr-4 py-3 rounded-full bg-white border-none shadow-sm focus:ring-2 focus:ring-blue-100 outline-none text-gray-700 placeholder-gray-400"
+          placeholder="Search city..."
+          className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none text-white placeholder-gray-500 focus:border-pink-500/50 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-inner backdrop-blur-md"
         />
       </div>
 
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg overflow-hidden z-[9999]">
+        <div className="absolute top-full left-0 right-0 mt-3 bg-[#2e1350]/95 border border-white/20 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden z-[9999] backdrop-blur-3xl">
           {results.map((location, index) => (
             <button
               key={`${location.lat}-${location.lon}-${index}`}
               onClick={() => handleSelect(location)}
-              className="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 transition-colors"
+              className="w-full px-6 py-5 text-left hover:bg-white/10 flex items-center gap-4 transition-all group border-b border-white/[0.03] last:border-0"
             >
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <div>
-                <p className="font-medium text-gray-700">{location.name}</p>
-                <p className="text-sm text-gray-400">{location.country}</p>
+              <div className="p-2.5 bg-white/5 rounded-xl text-gray-400 group-hover:text-pink-400 group-hover:bg-pink-400/10 transition-all">
+                <MapPin className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-white group-hover:text-pink-400 transition-colors truncate text-lg">{location.name}</p>
+                <div className="flex items-center gap-2 mt-1">
+                   <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{location.country}</p>
+                   <div className="w-1 h-1 rounded-full bg-white/10" />
+                   <p className="text-[10px] text-gray-600 font-medium">Geo Sanctuary</p>
+                </div>
               </div>
             </button>
           ))}
