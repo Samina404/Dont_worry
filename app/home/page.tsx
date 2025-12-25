@@ -302,11 +302,24 @@ export default function HomePage() {
         music = MOCK_MUSIC;
       }
 
-      // 4. Fetch Places (Try to get location, else skip or use default)
-      let places: Place[] = [];
-      // Note: Skipping places for auto-fetch to avoid permission prompts on load, 
-      // or we could fetch a default set if we had a default lat/lng. 
-      // For now, let's keep it simple and focus on the other 3 streams to ensure speed.
+      // 4. Check Mood Check-in status
+      const { data: moodData } = await supabase
+        .from("user_moods")
+        .select("created_at")
+        .eq("user_id", data.user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const lastMoodDate = moodData?.[0]?.created_at
+        ? new Date(moodData[0].created_at)
+        : null;
+
+      const today = new Date().toISOString().split("T")[0];
+
+      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== today) {
+        router.push("/moodcheckin");
+        return;
+      }
 
       // Combine and Shuffle
       const combinedFeed = shuffleArray([...posts, ...articles, ...music]);

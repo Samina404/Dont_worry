@@ -138,34 +138,8 @@ export default function MorePage() {
             ))}
           </div>
 
-          {/* Expanded Footer Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="mt-16 p-12 bg-white/[0.02] border border-white/5 rounded-[3.5rem] backdrop-blur-sm relative overflow-hidden text-center md:text-left"
-          >
-            <div className="relative z-10 max-w-3xl">
-              <h3 className="text-2xl font-black mb-4 text-white">✨ Elevate Your Experience</h3>
-              <p className="text-gray-500 text-lg font-light leading-relaxed">
-                Our suite of extras is constantly evolving. Each module is crafted with a focus on premium aesthetics and effortless utility, ensuring your digital sanctuary remains both beautiful and functional.
-              </p>
-            </div>
-            
-            {/* Visual Decoration */}
-            <div className="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-pink-500/[0.03] to-transparent pointer-none hidden md:block" />
-          </motion.div>
-
         </div>
       </main>
-
-      {/* Final Accent */}
-      <div className="py-12 flex justify-center opacity-20">
-         <div className="w-1 h-1 rounded-full bg-white mx-1" />
-         <div className="w-1 h-1 rounded-full bg-white mx-1" />
-         <div className="w-1 h-1 rounded-full bg-white mx-1" />
-      </div>
-
     </div>
   );
 }

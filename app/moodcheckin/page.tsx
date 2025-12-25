@@ -113,58 +113,103 @@ export default function MoodCheckInPage() {
     router.push("/home");
   };
 
-  if (!showMoodCheck) return null; // don't show UI until ready
+  if (!showMoodCheck) return null;
+
+  const neonText = "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-white to-yellow-400";
+  const glassCard = "bg-white/[0.03] backdrop-blur-3xl border border-white/10 shadow-2xl";
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold mb-6"
-      >
-        Daily Mood Check-In
-      </motion.h1>
-
-      <p className="text-gray-400 mb-8 text-center max-w-md">
-        How are you feeling today? Choose the emoji that best describes your mood and leave an optional note.
-      </p>
-
-      <div className="flex space-x-6 mb-6">
-        {moods.map((m) => (
-          <div key={m.label} className="flex flex-col items-center">
-            <motion.button
-              onClick={() => setSelectedMood(m.label)}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              className={`text-4xl p-3 rounded-full border-2 transition ${
-                selectedMood === m.label
-                  ? "border-pink-500 bg-pink-500/20"
-                  : "border-gray-700 hover:border-pink-400"
-              }`}
-            >
-              {m.emoji}
-            </motion.button>
-            <p className="text-sm text-gray-300 mt-2">{m.label}</p>
-          </div>
-        ))}
+    <div className="min-h-screen bg-[#130b1b] text-white flex flex-col items-center justify-center px-6 relative overflow-hidden font-sans">
+      
+      {/* 🌌 Atmospheric Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(76,29,149,0.15),transparent_70%)]" />
+        <motion.div 
+          animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-15%] right-[-10%] w-[70%] h-[70%] bg-pink-600/15 rounded-full blur-[130px]" 
+        />
+        <motion.div 
+          animate={{ x: [0, -20, 0], y: [0, 40, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[-15%] left-[-10%] w-[70%] h-[70%] bg-blue-600/10 rounded-full blur-[130px]" 
+        />
       </div>
 
-      <textarea
-        placeholder="Write about your feelings (optional)..."
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        className="w-full max-w-md h-32 rounded-lg p-4 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-pink-500"
-      />
-
-      <motion.button
-        onClick={handleSubmit}
-        disabled={loading}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="mt-6 bg-pink-600 hover:bg-pink-700 text-white px-8 py-3 rounded-full font-semibold transition-all"
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={`${glassCard} w-full max-w-2xl rounded-[3.5rem] p-8 md:p-16 relative z-10 flex flex-col items-center`}
       >
-        {loading ? "Saving..." : "Save Mood"}
-      </motion.button>
+        <div className="mb-10 text-center">
+            <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`text-4xl md:text-5xl font-black tracking-tighter mb-4 ${neonText}`}
+            >
+            Daily Check-In
+            </motion.h1>
+            <p className="text-gray-400 font-medium text-sm md:text-base max-w-sm mx-auto">
+            A moment for yourself. How is your inner world feeling today?
+            </p>
+        </div>
+
+        <div className="grid grid-cols-5 gap-3 md:gap-6 mb-12 w-full">
+            {moods.map((m) => (
+            <div key={m.label} className="flex flex-col items-center gap-3">
+                <motion.button
+                onClick={() => setSelectedMood(m.label)}
+                whileHover={{ scale: 1.1, y: -5 }}
+                whileTap={{ scale: 0.9 }}
+                className={`text-3xl md:text-4xl w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-[1.5rem] border-2 transition-all duration-300 ${
+                    selectedMood === m.label
+                    ? "border-pink-500 bg-pink-500/20 shadow-[0_0_30px_rgba(236,72,153,0.3)]"
+                    : "border-white/5 bg-white/5 hover:border-pink-400/50"
+                }`}
+                >
+                {m.emoji}
+                </motion.button>
+                <p className={`text-[10px] font-black uppercase tracking-widest ${selectedMood === m.label ? "text-pink-400" : "text-gray-500"}`}>
+                    {m.label}
+                </p>
+            </div>
+            ))}
+        </div>
+
+        <div className="w-full relative group mb-8">
+            <textarea
+                placeholder="What's on your mind? (Optional notes...)"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="w-full h-40 rounded-[2rem] p-6 bg-black/40 border border-white/5 text-white placeholder:text-gray-600 focus:outline-none focus:border-pink-500/50 transition-all resize-none font-medium"
+            />
+        </div>
+
+        <motion.button
+            onClick={handleSubmit}
+            disabled={loading || !selectedMood}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-sm transition-all duration-300 shadow-2xl ${
+                selectedMood 
+                ? "bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 bg-[length:200%_auto] hover:bg-right text-white shadow-pink-500/20" 
+                : "bg-white/5 text-gray-600 cursor-not-allowed border border-white/5"
+            }`}
+        >
+            {loading ? (
+                <div className="flex items-center justify-center gap-3">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Saving Pulse...</span>
+                </div>
+            ) : "Seal this Moment"}
+        </motion.button>
+
+        <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-gray-600 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-pink-500/50 animate-pulse" />
+            Auto-saving neutral in 30 seconds
+        </p>
+      </motion.div>
     </div>
   );
 }
+
