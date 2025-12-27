@@ -34,7 +34,7 @@ export default function OnboardPage() {
 
     const { user } = userData;
 
-    const { error } = await supabase.from("user_onboarding").insert([
+    const { error } = await supabase.from("user_onboarding").upsert([
       {
         user_id: user.id,
         music: form.music,

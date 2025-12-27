@@ -38,6 +38,7 @@ const MENU_ITEMS = [
     accent: "bg-purple-500/10 text-purple-400",
     delay: 0.4,
   },
+  
 ];
 
 export default function MorePage() {

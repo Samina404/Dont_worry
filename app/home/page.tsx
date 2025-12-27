@@ -260,7 +260,26 @@ export default function HomePage() {
       }
       setUser(data.user);
 
-      // 1. Fetch Social Posts
+      // 1. Check Mood Check-in status FIRST
+      const { data: moodData } = await supabase
+        .from("user_moods")
+        .select("created_at")
+        .eq("user_id", data.user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const lastMoodDate = moodData?.[0]?.created_at
+        ? new Date(moodData[0].created_at)
+        : null;
+
+      const today = new Date().toISOString().split("T")[0];
+
+      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== today) {
+        router.push("/moodcheckin");
+        return;
+      }
+
+      // 2. Continue with other data fetching
       let posts: SocialPost[] = [];
       const { data: postData } = await supabase
         .from("social_posts")
@@ -302,24 +321,6 @@ export default function HomePage() {
         music = MOCK_MUSIC;
       }
 
-      // 4. Check Mood Check-in status
-      const { data: moodData } = await supabase
-        .from("user_moods")
-        .select("created_at")
-        .eq("user_id", data.user.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      const lastMoodDate = moodData?.[0]?.created_at
-        ? new Date(moodData[0].created_at)
-        : null;
-
-      const today = new Date().toISOString().split("T")[0];
-
-      if (!lastMoodDate || lastMoodDate.toISOString().split("T")[0] !== today) {
-        router.push("/moodcheckin");
-        return;
-      }
 
       // Combine and Shuffle
       const combinedFeed = shuffleArray([...posts, ...articles, ...music]);
@@ -423,14 +424,11 @@ export default function HomePage() {
             >
                 <History size={20} />
             </button>
-            <button 
-                onClick={handleLogout}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-300 hover:text-red-400"
-                title="Logout"
+            
+            <div 
+                className="w-8 h-8 rounded-full overflow-hidden border border-white/20 cursor-pointer"
+                onClick={() => router.push("/profile")}
             >
-                <LogOut size={20} />
-            </button>
-            <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 cursor-pointer">
                 {user?.user_metadata?.avatar_url ? (
                     <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
@@ -492,13 +490,13 @@ export default function HomePage() {
                     </div>
 
                     {/* Articles Widget (Small) */}
-                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-6 border border-white/5 flex-1 relative overflow-hidden min-h-[280px]">
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-6 border border-white/5 relative overflow-hidden">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-black text-xl text-white tracking-tight">Insights</h3>
                             <button onClick={() => router.push('/articles')} className="text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-colors">Read More</button>
                         </div>
                         <div className="space-y-4">
-                             {feed.filter(i => i.type === 'article').slice(0, 2).map((article: any) => (
+                             {feed.filter(i => i.type === 'article').slice(0, 3).map((article: any) => (
                                 <div key={article.id} className="group cursor-pointer" onClick={() => window.open(article.url, "_blank")}>
                                     <div className="flex gap-3">
                                         {article.urlToImage && (
@@ -548,7 +546,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Daily Quotes */}
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="flex flex-col gap-4 flex-1">
                         <div className="bg-white/[0.03] backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group hover:bg-white/[0.06] transition-all duration-500">
                              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
                              <Quote className="w-8 h-8 text-pink-500/10 absolute top-8 right-8" />
@@ -575,7 +573,7 @@ export default function HomePage() {
                 <div className="lg:col-span-4 flex flex-col gap-6">
                     
                     {/* Mood Stats Widget (Enhanced) */}
-                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group">
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group flex-shrink-0">
                         {/* Background Glow */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-b from-pink-500/10 to-transparent pointer-events-none"></div>
                         
@@ -629,12 +627,12 @@ export default function HomePage() {
                     </div>
 
                     {/* Social Feed Widget */}
-                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/5 flex-1 h-[320px] flex flex-col relative overflow-hidden">
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/5 flex-1 min-h-[320px] flex flex-col relative overflow-hidden">
                          <div className="flex justify-between items-center mb-6">
                             <h3 className="font-black text-xl text-white tracking-tight">Community</h3>
                             <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 rounded-full">
                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-green-400">Live</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-green-400">Online</span>
                             </div>
                         </div>
                         
@@ -642,7 +640,7 @@ export default function HomePage() {
                             {feed.filter(i => i.type === 'post').length === 0 ? (
                                 <p className="text-gray-500 text-sm text-center py-4">No recent posts</p>
                             ) : (
-                                feed.filter(i => i.type === 'post').slice(0, 5).map((post: any) => (
+                                feed.filter(i => i.type === 'post').slice(0, 3).map((post: any) => (
                                     <div key={post.id} className="bg-white/5 p-4 rounded-2xl border border-white/5 backdrop-blur-md">
                                         <div className="flex gap-3 mb-3">
                                             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 p-[1px] flex-shrink-0">

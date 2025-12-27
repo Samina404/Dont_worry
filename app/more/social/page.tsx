@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../../../lib/supabaseClient";
 import { Heart, Send, User, MessageSquare, Share2, Navigation } from "lucide-react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import BackButton from "@/components/BackButton";
 
@@ -108,7 +109,7 @@ export default function SocialSpacePage() {
       setNewPost("");
     } catch (error) {
       console.error("Error posting:", error);
-      alert("Failed to post. Please try again.");
+      toast.error("Failed to post. Please try again.");
     } finally {
       setSubmitting(false);
     }

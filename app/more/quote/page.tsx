@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Quote, Loader2, Share2, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import BackButton from "@/components/BackButton";
+import { toast } from "sonner";
 
 interface QuoteData {
   text: string;
@@ -46,7 +47,7 @@ export default function QuotePage() {
       } catch {}
     } else {
       navigator.clipboard.writeText(shareText);
-      alert("Quote copied to clipboard!");
+      toast.success("Quote copied to clipboard!");
     }
   };
 

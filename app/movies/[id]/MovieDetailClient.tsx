@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import BackButton from "@/components/BackButton";
+import { toast } from "sonner";
 
 export default function MovieDetailClient({ movieId }: { movieId: string }) {
   const [trailerUrl, setTrailerUrl] = useState("");
@@ -52,11 +53,11 @@ export default function MovieDetailClient({ movieId }: { movieId: string }) {
         body: JSON.stringify({ movieId }),
       });
       const data = await res.json();
-      if (data.error) return alert(data.error);
+      if (data.error) return toast.error(data.error);
       setTrailerUrl(`https://www.youtube.com/embed/${data.key}`);
       setShowTrailer(true);
     } catch (e) {
-      alert("Failed to load trailer");
+      toast.error("Failed to load trailer");
       console.error(e);
     }
   };

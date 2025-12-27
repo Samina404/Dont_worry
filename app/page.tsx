@@ -92,17 +92,7 @@ export default function LandingPage() {
             
             {/* Left Text */}
             <div className="flex-1 space-y-6 md:space-y-8 relative z-10">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-pink-400">
-                  Your Sanctuary Awaits
-                </span>
-              </motion.div>
+              
 
               <h1 className="text-4xl md:text-5xl lg:text-5xl font-black leading-[1.05] tracking-tighter">
                 Sleep Better,

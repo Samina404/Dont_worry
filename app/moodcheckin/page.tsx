@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "../../lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MoodCheckInPage() {
   const router = useRouter();
@@ -97,7 +98,7 @@ export default function MoodCheckInPage() {
   // -----------------------------------------------------------
   const handleSubmit = async () => {
     if (!selectedMood) {
-      alert("Please select a mood!");
+      toast.warning("Please select a mood!");
       return;
     }
 
