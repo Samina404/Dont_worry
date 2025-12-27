@@ -93,8 +93,8 @@ export default function MusicPage() {
     <div className={`${bg} min-h-screen p-3`}>
       <div className="max-w-7xl mx-auto">
         {/* HEADER */}
-        <header className="flex items-center justify-between mb-6 backdrop-blur-md bg-[#3b234a]/70 border-b border-purple-900/40 p-4 rounded-xl">
-          <h1 className={`text-3xl font-semibold ${neonText}`}>
+        <header className="flex flex-col md:flex-row items-center justify-between mb-6 backdrop-blur-md bg-[#3b234a]/70 border-b border-purple-900/40 p-4 rounded-xl gap-4 md:gap-0">
+          <h1 className={`text-3xl font-semibold ${neonText} text-center md:text-left`}>
             Music Therapy
           </h1>
           <div className="flex items-center gap-3">
@@ -153,7 +153,7 @@ export default function MusicPage() {
           Today's Recommendations
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
           {dailyRecommended().map((v, index) => (
             <div
               key={`${v.id}-${index}`}
@@ -167,7 +167,7 @@ export default function MusicPage() {
         </div>
 
         {/* VIDEO GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-20">
           {videos.map((v, index) => (
             <div
               key={`${v.id}-${index}`}

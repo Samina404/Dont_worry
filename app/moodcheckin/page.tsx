@@ -140,7 +140,7 @@ export default function MoodCheckInPage() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className={`${glassCard} w-full max-w-2xl rounded-[3.5rem] p-8 md:p-16 relative z-10 flex flex-col items-center`}
+        className={`${glassCard} w-full max-w-2xl rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-16 relative z-10 flex flex-col items-center`}
       >
         <div className="mb-10 text-center">
             <motion.h1
@@ -155,7 +155,7 @@ export default function MoodCheckInPage() {
             </p>
         </div>
 
-        <div className="grid grid-cols-5 gap-3 md:gap-6 mb-12 w-full">
+        <div className="flex flex-wrap justify-center gap-3 md:gap-6 mb-12 w-full">
             {moods.map((m) => (
             <div key={m.label} className="flex flex-col items-center gap-3">
                 <motion.button

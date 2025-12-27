@@ -367,7 +367,7 @@ export default function HomePage() {
     );
 
   return (
-    <div className="min-h-screen bg-[#07040e] text-white font-sans pb-20 md:pb-0 relative overflow-hidden">
+    <div className="min-h-screen bg-[#07040e] text-white font-sans pb-20 md:pb-8 relative overflow-hidden">
       
       {/* 🌌 ATMOSPHERIC SANCTUARY BACKGROUND */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -441,7 +441,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Dashboard Grid */}
-      <main className="max-w-7xl mx-auto w-full p-4 md:p-6">
+      <main className="max-w-7xl mx-auto w-full p-4 md:p-8 lg:p-12">
         {loading ? (
              <div className="flex justify-center py-20">
                 <div className="w-8 h-8 border-2 border-white/20 border-t-pink-500 rounded-full animate-spin"></div>
@@ -453,7 +453,7 @@ export default function HomePage() {
                 <div className="lg:col-span-3 flex flex-col gap-6">
                     
                     {/* Music Widget */}
-                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-6 border border-white/5 flex flex-col h-[460px] shadow-2xl relative overflow-hidden group">
+                    <div className="bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] p-6 border border-white/5 flex flex-col h-[400px] md:h-[460px] shadow-2xl relative overflow-hidden group">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-black text-xl text-white tracking-tight">Musics for you</h3>
                             <button onClick={() => router.push('/music')} className="text-[10px] font-black uppercase tracking-widest text-pink-400 hover:text-white transition-colors">Listen All</button>
@@ -518,7 +518,7 @@ export default function HomePage() {
                 <div className="lg:col-span-5 flex flex-col gap-6">
                     
                     {/* Hero Card */}
-                    <div className="relative h-[500px] rounded-[3rem] overflow-hidden group shadow-2xl">
+                    <div className="relative h-[350px] md:h-[500px] rounded-[3rem] overflow-hidden group shadow-2xl">
                         <img 
                             src="https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=1000&auto=format&fit=crop" 
                             alt="Nature" 
@@ -533,7 +533,7 @@ export default function HomePage() {
                         </div>
 
                         <div className="absolute bottom-8 left-8 right-8">
-                            <h2 className="text-4xl font-bold text-white mb-3 leading-tight">
+                            <h2 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">
                                 Find clarity in <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400">the chaos.</span>
                             </h2>
                             <p className="text-gray-300 text-sm mb-6 max-w-md">

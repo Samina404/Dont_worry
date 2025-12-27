@@ -115,13 +115,13 @@ export default function ArticlesPage() {
   };
 
   return (
-    <div className={`${bg} min-h-screen p-6`}>
+    <div className={`${bg} min-h-screen p-3 md:p-6`}>
       <div className="max-w-6xl mx-auto">
         {/* HEADER */}
-        <header className="mb-8 flex items-start justify-between">
+        <header className="mb-8 flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
           <div>
-            <h1 className={`text-4xl font-bold ${neon}`}>Wellness & Mindfulness</h1>
-            <p className="mt-1 text-gray-300">
+            <h1 className={`text-3xl md:text-4xl font-bold ${neon}`}>Wellness & Mindfulness</h1>
+            <p className="mt-1 text-gray-300 text-sm md:text-base">
               Latest articles, guides and expert tips for calm, focus and mental peace.
             </p>
           </div>
@@ -129,7 +129,7 @@ export default function ArticlesPage() {
         </header>
 
         {/* Search & categories */}
-        <form onSubmit={onSearch} className="flex gap-3 mb-6 backdrop-blur-md bg-[#3b234a]/50 p-4 rounded-xl">
+        <form onSubmit={onSearch} className="flex flex-col md:flex-row gap-3 mb-6 backdrop-blur-md bg-[#3b234a]/50 p-4 rounded-xl">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}

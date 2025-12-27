@@ -111,9 +111,9 @@ export default function MorePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: item.delay, duration: 0.8 }}
-                  className={`${glassCard} rounded-[3rem] p-10 relative overflow-hidden group-hover:bg-white/[0.08] group-hover:border-white/20`}
+                  className={`${glassCard} rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 relative overflow-hidden group-hover:bg-white/[0.08] group-hover:border-white/20`}
                 >
-                  <div className="flex items-start gap-8">
+                  <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-8">
                     {/* Icon Container */}
                     <div className={`p-6 rounded-[2rem] transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${item.accent}`}>
                       <item.icon className="w-8 h-8" />
